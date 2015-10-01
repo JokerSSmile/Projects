@@ -6,18 +6,14 @@
 int turn = 1;
 int field[3][3] =
 {
-	{0,0,0}, {0,0,0}, {0,0,0}
+	{ 0,0,0 },{ 0,0,0 },{ 0,0,0 }
 };
 int turnCounter = 0;
+int playerCount = 0;
 
 
-
-
-
-
-
-//рисуем поле 3x3
-void drawField(sf::RectangleShape, sf::RenderWindow & window)
+//рисуем интерфейс
+void drawWindow(sf::RectangleShape, sf::RenderWindow & window)
 {
 	int posx = 10;
 	int posy = 10;
@@ -40,6 +36,28 @@ void drawField(sf::RectangleShape, sf::RenderWindow & window)
 	}
 	posx = 10;
 	posy = 10;
+
+	//menu
+	sf::RectangleShape rectangleMenu(sf::Vector2f(200, 620));
+	rectangleMenu.setFillColor(sf::Color::White);
+	rectangleMenu.setPosition(640, 10);
+	window.draw(rectangleMenu);
+
+	//refresh
+	sf::Texture refreshTexture;
+	refreshTexture.loadFromFile("image/refresh.png");
+	sf::Sprite refreshSprite;
+	refreshSprite.setTexture(refreshTexture);
+	refreshSprite.setPosition(676, 150);
+	window.draw(refreshSprite);
+
+	//exit
+	sf::Texture exitTexture;
+	exitTexture.loadFromFile("image/exit.png");
+	sf::Sprite exitSprite;
+	exitSprite.setTexture(exitTexture);
+	exitSprite.setPosition(676, 360);
+	window.draw(exitSprite);
 }
 
 
@@ -187,7 +205,7 @@ int  isMouseOnCell(sf::RenderWindow & window, int turn)
 			}
 		}
 	}
-	
+
 
 	if (turnCounter % 2 == 0)
 		turn = 1;
@@ -196,85 +214,131 @@ int  isMouseOnCell(sf::RenderWindow & window, int turn)
 
 
 	//заполняем массив при ходе
-	if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
+	if (sf::Event::GainedFocus && sf::Event::MouseEntered)
 	{
-		if ((10 <= MX && MX <= 210) && (10 <= MY && MY <= 210) && field[0][0] == 0)
+		if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
 		{
-			if (turn == 2)
+			if ((10 <= MX && MX <= 210) && (10 <= MY && MY <= 210) && field[0][0] == 0)
 			{
-				field[0][0] = 2;
-				turn = 1;
+				if (turn == 2)
+				{
+					field[0][0] = 2;
+					turn = 1;
+				}
+				else
+				{
+					field[0][0] = 1;
+					turn = 2;
+				}
 			}
-		}
-		else if ((220 <= MX && MX <= 420) && (10 <= MY && MY <= 210) && field[0][1] == 0)
-		{
-			if (turn == 2)
+			else if ((220 <= MX && MX <= 420) && (10 <= MY && MY <= 210) && field[0][1] == 0)
 			{
-				field[0][1] = 2;
-				turn = 1;
-
+				if (turn == 2)
+				{
+					field[0][1] = 2;
+					turn = 1;
+				}
+				else
+				{
+					field[0][1] = 1;
+					turn = 2;
+				}
 			}
-		}
-		else if ((430 <= MX && MX <= 630) && (10 <= MY && MY <= 210) && field[0][2] == 0)
-		{
-			if (turn == 2)
+			else if ((430 <= MX && MX <= 630) && (10 <= MY && MY <= 210) && field[0][2] == 0)
 			{
-				field[0][2] = 2;
-				turn = 1;
+				if (turn == 2)
+				{
+					field[0][2] = 2;
+					turn = 1;
+				}
+				else
+				{
+					field[0][2] = 1;
+					turn = 2;
+				}
 			}
-		}
-		else if ((10 <= MX && MX <= 210) && (220 <= MY && MY <= 420) && field[1][0] == 0)
-		{
-			if (turn == 2)
+			else if ((10 <= MX && MX <= 210) && (220 <= MY && MY <= 420) && field[1][0] == 0)
 			{
-				field[1][0] = 2;
-				turn = 1;
+				if (turn == 2)
+				{
+					field[1][0] = 2;
+					turn = 1;
+				}
+				else
+				{
+					field[1][0] = 1;
+					turn = 2;
+				}
 			}
-		}
-		else if ((220 <= MX && MX <= 420) && (220 <= MY && MY <= 420) && field[1][1] == 0)
-		{	
-			if (turn == 2)
+			else if ((220 <= MX && MX <= 420) && (220 <= MY && MY <= 420) && field[1][1] == 0)
 			{
-				field[1][1] = 2;
-				turn = 1;
+				if (turn == 2)
+				{
+					field[1][1] = 2;
+					turn = 1;
+				}
+				else
+				{
+					field[1][1] = 1;
+					turn = 2;
+				}
 			}
-		}
-		else if ((430 <= MX && MX <= 630) && (220 <= MY && MY <= 420) && field[1][2] == 0)
-		{
-			if (turn == 2)
+			else if ((430 <= MX && MX <= 630) && (220 <= MY && MY <= 420) && field[1][2] == 0)
 			{
-				field[1][2] = 2;
-				turn = 1;
+				if (turn == 2)
+				{
+					field[1][2] = 2;
+					turn = 1;
+				}
+				else
+				{
+					field[1][2] = 1;
+					turn = 2;
+				}
 			}
-		}
-		else if ((10 <= MX && MX <= 210) && (430 <= MY && MY <= 630) && field[2][0] == 0)
-		{
-			if (turn == 2)
+			else if ((10 <= MX && MX <= 210) && (430 <= MY && MY <= 630) && field[2][0] == 0)
 			{
-				field[2][0] = 2;
-				turn = 1;
+				if (turn == 2)
+				{
+					field[2][0] = 2;
+					turn = 1;
+				}
+				else
+				{
+					field[2][0] = 1;
+					turn = 2;
+				}
 			}
-		}
-		else if ((220 <= MX && MX <= 420) && (430 <= MY && MY <= 630) && field[2][1] == 0)
-		{
-			if (turn == 2)
+			else if ((220 <= MX && MX <= 420) && (430 <= MY && MY <= 630) && field[2][1] == 0)
 			{
-				field[2][1] = 2;
-				turn = 1;
+				if (turn == 2)
+				{
+					field[2][1] = 2;
+					turn = 1;
+				}
+				else
+				{
+					field[2][1] = 1;
+					turn = 2;
+				}
 			}
-		}
-		else if ((430 <= MX && MX <= 630) && (430 <= MY && MY <= 630) && field[2][2] == 0)
-		{
-			if (turn == 2)
+			else if ((430 <= MX && MX <= 630) && (430 <= MY && MY <= 630) && field[2][2] == 0)
 			{
-				field[2][2] = 2;
-				turn = 1;
+				if (turn == 2)
+				{
+					field[2][2] = 2;
+					turn = 1;
+				}
+				else
+				{
+					field[2][2] = 1;
+					turn = 2;
+				}
 			}
 		}
 	}
 	return turnCounter;
 }
-
 
 
 //проверяем на победу или ничью
@@ -295,7 +359,7 @@ int checkWin(sf::RenderWindow & window)
 	oWinTexture.loadFromFile("image/owins.png");
 	sf::Sprite oWinSprite;
 	oWinSprite.setTexture(oWinTexture);
-	
+
 
 	//проверка на победу х
 	if (((field[0][0] == field[1][0]) && (field[1][0] == field[2][0]) && (field[0][0] == 1)) || ((field[0][0] == field[0][1]) && (field[0][1] == field[0][2]) && (field[0][0] == 1)))
@@ -358,7 +422,6 @@ int checkWin(sf::RenderWindow & window)
 }
 
 
-
 // ход пк
 void  pcTurn(sf::RenderWindow & window, int turnCounter)
 {
@@ -389,7 +452,6 @@ void  pcTurn(sf::RenderWindow & window, int turnCounter)
 			{
 				field[2][0] = 1;
 				turn = 2;
-				std::cout << "1541543145" << std::endl;
 			}
 			else
 			{
@@ -400,10 +462,15 @@ void  pcTurn(sf::RenderWindow & window, int turnCounter)
 	}
 	else if (turnCounter == 4)
 	{
-		
+
 		if (field[0][2] == 1 && field[1][1] == 1 && field[2][0] == 0)
 		{
 			field[2][0] = 1;
+			turn = 2;
+		}
+		else if (field[1][0] == 2 && field[2][0] == 2 && field[0][0] == 0)
+		{
+			field[0][0] = 1;
 			turn = 2;
 		}
 		else if (field[0][2] == 1 && field[2][0] == 2)
@@ -514,13 +581,22 @@ void  pcTurn(sf::RenderWindow & window, int turnCounter)
 						turn = 2;
 					}
 				}
+				else if (field[0][0] == 1 && field[1][0] == 2 && field[2][0] == 2)
+				{
+					if (field[0][1] == 0)
+					{
+						field[0][1] = 1;
+						turn = 2;
+					}
+				}
 			}
-			else if (field[2][2] == 0)
+			else if (field[2][2] == 0)//////////////////////
 			{
 				if (field[0][0] == 1 && field[1][2] == 2)
 				{
 					if (field[2][1] == 2)
 					{
+						std::cout << "1" << std::endl;
 						if (field[0][1] == 0)
 						{
 							field[0][1] = 0;
@@ -529,23 +605,44 @@ void  pcTurn(sf::RenderWindow & window, int turnCounter)
 					}
 					else if (field[0][1] == 2)
 					{
+						std::cout << "2" << std::endl;
 						if (field[2][2] == 0)
 						{
 							field[2][2] = 1;
 							turn = 2;
 						}
 					}
+					else if (field[0][1] == 0 && field[1][0] == 2 && field[2][0] == 2)
+					{
+						field[0][1] = 1;
+						turn = 2;
+					}
+				}
+				else if (field[0][0] == 1 && field[1][0] == 2 && field[2][0] == 2)
+				{
+					std::cout << field[0][1] << std::endl;
+					if (field[2][2] == 0)
+					{
+						field[2][2] = 1;
+						turn = 2;
+					}
+					else
+					{
+						field[0][1] = 1;
+						turn = 2;
+					}
 				}
 			}
 		}
 		else if (field[0][2] == 2)
 		{
+			std::cout << "4" << std::endl;
 			if (field[0][0] == 2)
 			{
 				if (field[2][1] == 0)
 				{
-						field[2][1] = 1;
-						turn = 2;
+					field[2][1] = 1;
+					turn = 2;
 				}
 				else if (field[2][1] == 2)
 				{
@@ -596,6 +693,7 @@ void  pcTurn(sf::RenderWindow & window, int turnCounter)
 		}
 		else if (field[2][2] == 2 && field[1][2] == 2 && field[0][1] == 0 && field[2][1] == 1)
 		{
+			std::cout << "5" << std::endl;
 			field[0][1] = 1;
 			turn = 2;
 		}
@@ -632,12 +730,114 @@ void  pcTurn(sf::RenderWindow & window, int turnCounter)
 }
 
 
+void menuUsed(sf::RenderWindow & window)
+{
+	float MX = sf::Mouse::getPosition(window).x;
+	float MY = sf::Mouse::getPosition(window).y;
+
+	if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
+	{
+		if (MX >= 676 && MX <= 804 && MY >= 360 && MY <= 488)
+		{
+			for (int i = 0; i < 3; i++)
+			{
+				for (int j = 0; j < 3; j++)
+				{
+					field[i][j] = 0;
+				}
+			}
+			playerCount = 0;
+			turnCounter = 0;
+			turn = 1;
+		}
+		else if (MX >= 676 && MX <= 804 && MY >= 150 && MY <= 278)
+		{
+			for (int i = 0; i < 3; i++)
+			{
+				for (int j = 0; j < 3; j++)
+				{
+					field[i][j] = 0;
+				}
+			}
+			turnCounter = 0;
+			turn = 1;
+		}
+	}
+}
+
+
+void playersNumber(sf::RenderWindow & window)
+{
+	if (playerCount == 0)
+	{
+		float MX = sf::Mouse::getPosition(window).x;
+		float MY = sf::Mouse::getPosition(window).y;
+
+		//menu vibora kol-va igrokov
+		sf::RectangleShape rectangleStart(sf::Vector2f(830, 620));
+		rectangleStart.setFillColor(sf::Color::White);
+		rectangleStart.setPosition(10, 10);
+		window.draw(rectangleStart);
+
+		//text
+		sf::Texture textTexture;
+		textTexture.loadFromFile("image/text.png");
+		sf::Sprite textSprite;
+		textSprite.setTexture(textTexture);
+		textSprite.setPosition(100, 100);
+		window.draw(textSprite);
+
+		//1 player
+		sf::Texture oneTexture;
+		oneTexture.loadFromFile("image/1.png");
+		sf::Sprite oneSprite;
+		oneSprite.setTexture(oneTexture);
+		oneSprite.setPosition(100, 260);
+		window.draw(oneSprite);
+
+		//2 player
+		sf::Texture twoTexture;
+		twoTexture.loadFromFile("image/2.png");
+		sf::Sprite twoSprite;
+		twoSprite.setTexture(twoTexture);
+		twoSprite.setPosition(100, 370);
+		window.draw(twoSprite);
+
+		//current player choise
+		sf::Texture currentTexture;
+		currentTexture.loadFromFile("image/current.png");
+		sf::Sprite currentSprite;
+		currentSprite.setTexture(currentTexture);
+
+		if (MX >= 100 && MX <= 486 && MY >= 260 && MY <= 361)
+		{
+			currentSprite.setPosition(40, 270);
+			window.draw(currentSprite);
+			if (sf::Mouse::isButtonPressed(sf::Mouse::Right))
+			{
+				playerCount = 1;
+			}
+		}
+		else if (MX >= 100 && MX <= 559 && MY >= 370 && MY <= 471)
+		{
+			currentSprite.setPosition(40, 380);
+			window.draw(currentSprite);
+			if (sf::Mouse::isButtonPressed(sf::Mouse::Right))
+			{
+				playerCount = 2;
+			}
+		}
+	}
+
+}
+
+
 int main()
 {
 
 
 	//okno
-	sf::RenderWindow window(sf::VideoMode(640, 640), "Dota 3");
+	sf::RenderWindow window(sf::VideoMode(850, 640), "Tic-Tac-Toe");
 
 	//kvadrati
 	sf::RectangleShape rectangle(sf::Vector2f(200, 200));
@@ -660,13 +860,22 @@ int main()
 		//ochistka
 		window.clear();
 
-		drawField(rectangle, window);
-		drawxo(window);
-		if (checkWin(window) == 0)
+
+		playersNumber(window);
+		if (playerCount != 0)
 		{
-			pcTurn(window, turnCounter);
-			isMouseOnCell(window, turn);
-			checkWin(window);
+			drawWindow(rectangle, window);
+			menuUsed(window);
+			drawxo(window);
+			if (checkWin(window) == 0)
+			{
+				if (playerCount == 1)
+				{
+					pcTurn(window, turnCounter);
+				}
+				isMouseOnCell(window, turn);
+				checkWin(window);
+			}
 		}
 		window.display();
 	}

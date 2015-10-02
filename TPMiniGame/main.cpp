@@ -837,7 +837,7 @@ int main()
 
 
 	//okno
-	sf::RenderWindow window(sf::VideoMode(850, 640), "Tic-Tac-Toe");
+	sf::RenderWindow window(sf::VideoMode(850, 640), "Tic-Tac-Toe", sf::Style::Close);
 
 	//kvadrati
 	sf::RectangleShape rectangle(sf::Vector2f(200, 200));

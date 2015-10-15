@@ -6,7 +6,7 @@
 int turn = 1;
 int field[3][3] =
 {
-	{ 0,0,0 },{ 0,0,0 },{ 0,0,0 }
+	{0,0,0}, {0,0,0}, {0,0,0}
 };
 int turnCounter = 0;
 int playerCount = 0;
@@ -79,102 +79,17 @@ void drawxo(sf::RenderWindow & window)
 	for (int i = 0; i < 3; i++)
 	{
 		for (int j = 0; j < 3; j++)
-		{
+		{	
+			
 			if (field[i][j] == 1)
 			{
-				if (i == 0 && j == 0)
-				{
-					crossSprite.setPosition(46, 46);
-					window.draw(crossSprite);
-				}
-				if (i == 0 && j == 1)
-				{
-					crossSprite.setPosition(256, 46);
-					window.draw(crossSprite);
-				}
-				if (i == 0 && j == 2)
-				{
-					crossSprite.setPosition(466, 46);
-					window.draw(crossSprite);
-				}
-				if (i == 1 && j == 0)
-				{
-					crossSprite.setPosition(46, 256);
-					window.draw(crossSprite);
-				}
-				if (i == 1 && j == 1)
-				{
-					crossSprite.setPosition(256, 256);
-					window.draw(crossSprite);
-				}
-				if (i == 1 && j == 2)
-				{
-					crossSprite.setPosition(466, 256);
-					window.draw(crossSprite);
-				}
-				if (i == 2 && j == 0)
-				{
-					crossSprite.setPosition(46, 466);
-					window.draw(crossSprite);
-				}
-				if (i == 2 && j == 1)
-				{
-					crossSprite.setPosition(256, 466);
-					window.draw(crossSprite);
-				}
-				if (i == 2 && j == 2)
-				{
-					crossSprite.setPosition(466, 466);
-					window.draw(crossSprite);
-				}
+				crossSprite.setPosition(j * 210 + 46, i * 210 + 46);
+				window.draw(crossSprite);
 			}
 			else if (field[i][j] == 2)
 			{
-				if (i == 0 && j == 0)
-				{
-					roundSprite.setPosition(46, 46);
-					window.draw(roundSprite);
-				}
-				if (i == 0 && j == 1)
-				{
-					roundSprite.setPosition(256, 46);
-					window.draw(roundSprite);
-				}
-				if (i == 0 && j == 2)
-				{
-					roundSprite.setPosition(466, 46);
-					window.draw(roundSprite);
-				}
-				if (i == 1 && j == 0)
-				{
-					roundSprite.setPosition(46, 256);
-					window.draw(roundSprite);
-				}
-				if (i == 1 && j == 1)
-				{
-					roundSprite.setPosition(256, 256);
-					window.draw(roundSprite);
-				}
-				if (i == 1 && j == 2)
-				{
-					roundSprite.setPosition(466, 256);
-					window.draw(roundSprite);
-				}
-				if (i == 2 && j == 0)
-				{
-					roundSprite.setPosition(46, 466);
-					window.draw(roundSprite);
-				}
-				if (i == 2 && j == 1)
-				{
-					roundSprite.setPosition(256, 466);
-					window.draw(roundSprite);
-				}
-				if (i == 2 && j == 2)
-				{
-					roundSprite.setPosition(466, 466);
-					window.draw(roundSprite);
-				}
+				roundSprite.setPosition(j * 210 + 46, i * 210 + 46);
+				window.draw(roundSprite);
 			}
 		}
 	}
@@ -205,7 +120,7 @@ int  isMouseOnCell(sf::RenderWindow & window, int turn)
 			}
 		}
 	}
-
+	
 
 	if (turnCounter % 2 == 0)
 		turn = 1;
@@ -359,7 +274,7 @@ int checkWin(sf::RenderWindow & window)
 	oWinTexture.loadFromFile("image/owins.png");
 	sf::Sprite oWinSprite;
 	oWinSprite.setTexture(oWinTexture);
-
+	
 
 	//проверка на победу х
 	if (((field[0][0] == field[1][0]) && (field[1][0] == field[2][0]) && (field[0][0] == 1)) || ((field[0][0] == field[0][1]) && (field[0][1] == field[0][2]) && (field[0][0] == 1)))
@@ -462,7 +377,7 @@ void  pcTurn(sf::RenderWindow & window, int turnCounter)
 	}
 	else if (turnCounter == 4)
 	{
-
+		
 		if (field[0][2] == 1 && field[1][1] == 1 && field[2][0] == 0)
 		{
 			field[2][0] = 1;
@@ -590,7 +505,7 @@ void  pcTurn(sf::RenderWindow & window, int turnCounter)
 					}
 				}
 			}
-			else if (field[2][2] == 0)//////////////////////
+			else if (field[2][2] == 0)
 			{
 				if (field[0][0] == 1 && field[1][2] == 2)
 				{
@@ -626,7 +541,7 @@ void  pcTurn(sf::RenderWindow & window, int turnCounter)
 						field[2][2] = 1;
 						turn = 2;
 					}
-					else
+					else 
 					{
 						field[0][1] = 1;
 						turn = 2;
@@ -641,8 +556,8 @@ void  pcTurn(sf::RenderWindow & window, int turnCounter)
 			{
 				if (field[2][1] == 0)
 				{
-					field[2][1] = 1;
-					turn = 2;
+						field[2][1] = 1;
+						turn = 2;
 				}
 				else if (field[2][1] == 2)
 				{
@@ -809,11 +724,15 @@ void playersNumber(sf::RenderWindow & window)
 		sf::Sprite currentSprite;
 		currentSprite.setTexture(currentTexture);
 
+
+
+
+
 		if (MX >= 100 && MX <= 486 && MY >= 260 && MY <= 361)
 		{
 			currentSprite.setPosition(40, 270);
 			window.draw(currentSprite);
-			if (sf::Mouse::isButtonPressed(sf::Mouse::Right))
+			if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
 			{
 				playerCount = 1;
 			}
@@ -822,7 +741,7 @@ void playersNumber(sf::RenderWindow & window)
 		{
 			currentSprite.setPosition(40, 380);
 			window.draw(currentSprite);
-			if (sf::Mouse::isButtonPressed(sf::Mouse::Right))
+			if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
 			{
 				playerCount = 2;
 			}
@@ -830,6 +749,7 @@ void playersNumber(sf::RenderWindow & window)
 	}
 
 }
+
 
 
 int main()
@@ -857,11 +777,19 @@ int main()
 				break;
 			}
 		}
+
 		//ochistka
 		window.clear();
 
+		if (playerCount == 0)
+		{
+			playersNumber(window);
+			while (sf::Mouse::isButtonPressed(sf::Mouse::Left))
+			{
+				playersNumber(window);
+			}
+		}
 
-		playersNumber(window);
 		if (playerCount != 0)
 		{
 			drawWindow(rectangle, window);

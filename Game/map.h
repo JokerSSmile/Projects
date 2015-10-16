@@ -1,4 +1,5 @@
 #include <SFML\Graphics.hpp>
+
 const int HEIGHT_MAP = 10;//11;//размер карты высота
 const int WIDTH_MAP = 15;//22;//размер карты ширина 
 
@@ -6,7 +7,7 @@ const int WIDTH_MAP = 15;//22;//размер карты ширина
 
 sf::String TileMap[HEIGHT_MAP] = {
 	"000000000000000",
-	"00           00",
+	"000000000000000",
 	"00           00",
 	"00           00",
 	"00           00",

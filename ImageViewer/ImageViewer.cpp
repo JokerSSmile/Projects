@@ -16,21 +16,27 @@ int counter = 0;
 //#zooma
 int zoomCount = 1;
 
+int mouseX = 0;
+int mouseY = 0;
+
 bool isMousePressed = false;
 
 //zadaem zoom
-void setZoom(Sprite & imageSprite)
+void setZoom(Sprite & imageSprite, RenderWindow & window)
 {
-	//+- scale
-	if (Keyboard::isKeyPressed(Keyboard::Up) && isMousePressed == false)
+	if (window.hasFocus())
 	{
-		isMousePressed = true;
-		zoomCount += 1;
-	}
-	else if (Keyboard::isKeyPressed(Keyboard::Down) && isMousePressed == false)
-	{
-		isMousePressed = true;
-		zoomCount -= 1;
+		//+- scale
+		if (Keyboard::isKeyPressed(Keyboard::Up) && isMousePressed == false)
+		{
+			isMousePressed = true;
+			zoomCount += 1;
+		}
+		else if (Keyboard::isKeyPressed(Keyboard::Down) && isMousePressed == false)
+		{
+			isMousePressed = true;
+			zoomCount -= 1;
+		}
 	}
 
 	//granici scale'a
@@ -69,9 +75,6 @@ int setImgScale(Sprite & sprite, RenderWindow & window, Vector2u & windowSize, V
 
 	//kamera
 	window.setView(view);
-	
-
-
 
 	//proverka razmera
 	if (imageSize.height * imageSize.width < 6250000)
@@ -128,7 +131,40 @@ void showImg(Texture & imageTexture, char *fileName, RenderWindow & window, char
 
 	//scale
 	setImgScale(imageSprite, window, windowSize, view);
-	setZoom(imageSprite);
+	setZoom(imageSprite, window);
+
+
+
+	if (Mouse::isButtonPressed(Mouse::Left))
+	{
+		if (mouseX == 0 && mouseY == 0)
+		{
+			mouseX = Mouse::getPosition(window).x;
+			mouseY = Mouse::getPosition(window).y;
+		}
+	}
+
+
+	if (Mouse::isButtonPressed(Mouse::Left))
+	{
+		Vector2i mousePos = Mouse::getPosition(window);
+		//cout << mouseX << "____" << mousePos.x << endl;
+		imageSprite.setPosition(windowSize.x/2 + (mouseX - mousePos.x), windowSize.y/2 + (mouseY - mousePos.y));
+		window.draw(imageSprite);
+	}
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 	//vivod
@@ -169,18 +205,21 @@ void workWithFiles(char imagesInDirectory[50][30], char *directoryPath, RenderWi
 	//put' k failu
 	strcat(neededDirName, imagesInDirectory[counter]);
 
-	//menyaem kartinki
-	if (Keyboard::isKeyPressed(Keyboard::Right) && isMousePressed == false)
+	if (window.hasFocus())
 	{
-		counter++;
-		zoomCount = 1;
-		isMousePressed = true;
-	}
-	else if (Keyboard::isKeyPressed(Keyboard::Left) && isMousePressed == false)
-	{
-		counter--;
-		zoomCount = 1;
-		isMousePressed = true;
+		//menyaem kartinki
+		if (Keyboard::isKeyPressed(Keyboard::Right) && isMousePressed == false)
+		{
+			counter++;
+			zoomCount = 1;
+			isMousePressed = true;
+		}
+		else if (Keyboard::isKeyPressed(Keyboard::Left) && isMousePressed == false)
+		{
+			counter--;
+			zoomCount = 1;
+			isMousePressed = true;
+		}
 	}
 
 	//perehod v nachalo/konec
@@ -203,7 +242,7 @@ int main()
 {
 	bool isMoved = false;
 
-	RenderWindow window(VideoMode(winW, winH), "img");
+	RenderWindow window(VideoMode(winW, winH), "");
 
 	//zadannii put'
 	char directoryPath[20] = ("C:\\img\\*");
@@ -254,11 +293,14 @@ int main()
 	while (window.isOpen())
 	{
 		Event event;
-
 		while (window.pollEvent(event))
 		{
 			if (event.type == Event::Closed)
 				window.close();
+			if (event.type == Event::MouseMoved)
+			{
+				
+			}
 		}
 
 		window.clear(Color(200, 200, 200));
@@ -266,8 +308,14 @@ int main()
 		workWithFiles(imagesInDirectory, directoryPath, window, imageCount);
 
 		//proverka na nazhatie klavish
-		if (Keyboard::isKeyPressed(Keyboard::Right) == false && Keyboard::isKeyPressed(Keyboard::Left) == false && Keyboard::isKeyPressed(Keyboard::Up) == false && Keyboard::isKeyPressed(Keyboard::Down) == false)
+		if (!Keyboard::isKeyPressed(Keyboard::Right) && !Keyboard::isKeyPressed(Keyboard::Left) && !Keyboard::isKeyPressed(Keyboard::Up) && !Keyboard::isKeyPressed(Keyboard::Down))
 			isMousePressed = false;
+
+		if (!Mouse::isButtonPressed(Mouse::Left))
+		{
+			mouseX = 0;
+			mouseY = 0;
+		}
 
 		window.display();
 	}

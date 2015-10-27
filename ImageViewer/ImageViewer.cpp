@@ -19,7 +19,20 @@ int zoomCount = 1;
 int mouseX = 0;
 int mouseY = 0;
 
-bool isMousePressed = false;
+bool isButtonPressed = false;
+bool isLoaded = false;
+
+Texture imageTexture;
+
+/*
+struct
+{
+bool isLoaded;
+char name[30];
+char dirName[50];
+Texture texture;
+}images[500];
+*/
 
 //zadaem zoom
 void setZoom(Sprite & imageSprite, RenderWindow & window)
@@ -27,14 +40,14 @@ void setZoom(Sprite & imageSprite, RenderWindow & window)
 	if (window.hasFocus())
 	{
 		//+- scale
-		if (Keyboard::isKeyPressed(Keyboard::Up) && isMousePressed == false)
+		if (Keyboard::isKeyPressed(Keyboard::Up) && isButtonPressed == false)
 		{
-			isMousePressed = true;
+			isButtonPressed = true;
 			zoomCount += 1;
 		}
-		else if (Keyboard::isKeyPressed(Keyboard::Down) && isMousePressed == false)
+		else if (Keyboard::isKeyPressed(Keyboard::Down) && isButtonPressed == false)
 		{
-			isMousePressed = true;
+			isButtonPressed = true;
 			zoomCount -= 1;
 		}
 	}
@@ -50,7 +63,7 @@ void setZoom(Sprite & imageSprite, RenderWindow & window)
 }
 
 //scale pri izmenenii okna ili esli kartinka bol'she okna
-int setImgScale(Sprite & sprite, RenderWindow & window, Vector2u & windowSize, View & view)
+void setImgScale(Sprite & sprite, RenderWindow & window, Vector2u & windowSize, View & view)
 {
 	//img size
 	FloatRect imageSize = sprite.getLocalBounds();
@@ -58,7 +71,7 @@ int setImgScale(Sprite & sprite, RenderWindow & window, Vector2u & windowSize, V
 	//centriruem kartinku
 	sprite.setOrigin(imageSize.width / 2, imageSize.height / 2);
 	sprite.setPosition(Vector2f(windowSize.x / 2.0f, windowSize.y / 2.0f));
-	
+
 
 	//scale kartinki
 	if (imageSize.height > windowSize.y || imageSize.width > windowSize.x)
@@ -75,17 +88,14 @@ int setImgScale(Sprite & sprite, RenderWindow & window, Vector2u & windowSize, V
 
 	//kamera
 	window.setView(view);
-
-	//proverka razmera
-	if (imageSize.height * imageSize.width < 6250000)
-	{
-		return 1;
-	}
 }
 
 //pokazivaem kartinku/soobshenie ob oshibke
-void showImg(Texture & imageTexture, char *fileName, RenderWindow & window, char *dirName)
+void showImg(char *fileName, RenderWindow & window, char *dirName)
 {
+	//est' li oshibka
+	bool isError = false;
+
 	//window size
 	Vector2u windowSize = window.getSize();
 
@@ -103,74 +113,67 @@ void showImg(Texture & imageTexture, char *fileName, RenderWindow & window, char
 	//razmer
 	Vector2u imgSize = imageTexture.getSize();
 
-	
-	if (!imageTexture.loadFromFile(neededDirName))
+	//zagruzka textur
+	if (isLoaded == false)
 	{
-		Vector2u windowSize = window.getSize();
-
-		window.clear(Color(200, 200, 200));
-		Text text;
-		Font font;
-		font.loadFromFile("font/times.ttf");
-		text.setString("Can not load the image");
-		text.setFont(font);
-		text.setColor(Color::Black);
-		text.setCharacterSize(20);
-
-		FloatRect textRect = text.getLocalBounds();
-		text.setOrigin(textRect.width / 2, textRect.height / 2);
-		text.setPosition(view.getCenter().x, view.getCenter().y);
-
-		window.draw(text);
-	}
-
-	//delaem sprite
-	imageTexture.loadFromFile(neededDirName);
-	Sprite imageSprite;
-	imageSprite.setTexture(imageTexture);
-
-	//scale
-	setImgScale(imageSprite, window, windowSize, view);
-	setZoom(imageSprite, window);
-
-
-
-	if (Mouse::isButtonPressed(Mouse::Left))
-	{
-		if (mouseX == 0 && mouseY == 0)
+		if (imageTexture.loadFromFile(neededDirName))
 		{
-			mouseX = Mouse::getPosition(window).x;
-			mouseY = Mouse::getPosition(window).y;
+			isLoaded = true;
+		}
+		else
+		{
+			Vector2u windowSize = window.getSize();
+
+			window.clear(Color(200, 200, 200));
+			Text text;
+			Font font;
+			font.loadFromFile("font/times.ttf");
+			text.setString("Can not load the image");
+			text.setFont(font);
+			text.setColor(Color::Black);
+			text.setCharacterSize(20);
+
+			FloatRect textRect = text.getLocalBounds();
+			text.setOrigin(textRect.width / 2, textRect.height / 2);
+			text.setPosition(view.getCenter().x, view.getCenter().y);
+
+			window.draw(text);
+			isError = true;
 		}
 	}
-
-
-	if (Mouse::isButtonPressed(Mouse::Left))
+	
+	if (!isError)
 	{
-		Vector2i mousePos = Mouse::getPosition(window);
-		//cout << mouseX << "____" << mousePos.x << endl;
-		imageSprite.setPosition(windowSize.x/2 + (mouseX - mousePos.x), windowSize.y/2 + (mouseY - mousePos.y));
-		window.draw(imageSprite);
-	}
+		//delaem sprite
+		Sprite imageSprite;
+		imageSprite.setTexture(imageTexture);
+
+		//scale
+		setZoom(imageSprite, window);
+		setImgScale(imageSprite, window, windowSize, view);
+
+		//pri drag&drop berem koordinati pri nazhatii na mish 
+		if (Mouse::isButtonPressed(Mouse::Left))
+		{
+			if (mouseX == 0 && mouseY == 0)
+			{
+				mouseX = Mouse::getPosition(window).x;
+				mouseY = Mouse::getPosition(window).y;
+			}
+		}
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-	//vivod
-	if (setImgScale(imageSprite, window, windowSize, view) == 1)
-	{
-		window.draw(imageSprite);
+		if (Mouse::isButtonPressed(Mouse::Left))
+		{
+			Vector2i mousePos = Mouse::getPosition(window);
+			//cout << mouseX << "____" << mousePos.x << endl;
+			imageSprite.setPosition(windowSize.x / 2 + (mouseX - mousePos.x), windowSize.y / 2 + (mouseY - mousePos.y));
+			window.draw(imageSprite);
+		}
+		else
+		{
+			window.draw(imageSprite);
+		}
 	}
 }
 
@@ -190,11 +193,11 @@ int getExpansions(char *fileName)
 	return 0;
 }
 
-//
+//rabotaem s poluchennoi dire
 void workWithFiles(char imagesInDirectory[50][30], char *directoryPath, RenderWindow & window, int imageCount)
 {
 	//vivod tekushei kartinki
-	Texture imageTexture;
+	//Texture imageTexture;
 
 	//polniy put' is kornya k failu
 	char neededDirName[30] = {};
@@ -208,17 +211,19 @@ void workWithFiles(char imagesInDirectory[50][30], char *directoryPath, RenderWi
 	if (window.hasFocus())
 	{
 		//menyaem kartinki
-		if (Keyboard::isKeyPressed(Keyboard::Right) && isMousePressed == false)
+		if (Keyboard::isKeyPressed(Keyboard::Right) && isButtonPressed == false)
 		{
 			counter++;
 			zoomCount = 1;
-			isMousePressed = true;
+			isButtonPressed = true;
+			isLoaded = false;
 		}
-		else if (Keyboard::isKeyPressed(Keyboard::Left) && isMousePressed == false)
+		else if (Keyboard::isKeyPressed(Keyboard::Left) && isButtonPressed == false)
 		{
 			counter--;
 			zoomCount = 1;
-			isMousePressed = true;
+			isButtonPressed = true;
+			isLoaded = false;
 		}
 	}
 
@@ -232,7 +237,9 @@ void workWithFiles(char imagesInDirectory[50][30], char *directoryPath, RenderWi
 		counter = imageCount - 1;
 	}
 
-	showImg(imageTexture, imagesInDirectory[counter], window, directoryPath);
+	showImg(imagesInDirectory[counter], window, directoryPath);
+
+
 
 	//zagolovok
 	window.setTitle(imagesInDirectory[counter]);
@@ -299,7 +306,7 @@ int main()
 				window.close();
 			if (event.type == Event::MouseMoved)
 			{
-				
+
 			}
 		}
 
@@ -309,7 +316,7 @@ int main()
 
 		//proverka na nazhatie klavish
 		if (!Keyboard::isKeyPressed(Keyboard::Right) && !Keyboard::isKeyPressed(Keyboard::Left) && !Keyboard::isKeyPressed(Keyboard::Up) && !Keyboard::isKeyPressed(Keyboard::Down))
-			isMousePressed = false;
+			isButtonPressed = false;
 
 		if (!Mouse::isButtonPressed(Mouse::Left))
 		{

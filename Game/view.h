@@ -15,8 +15,3 @@ void getPlayerCoordinateForView(float x, float y)
 
 	view.setCenter(tempX, tempY); //следим за игроком, передавая его координаты
 }
-
-void viewmap(float time)
-{
-
-}

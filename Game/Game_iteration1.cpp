@@ -1,28 +1,111 @@
 #include <SFML/Graphics.hpp>
 #include <iostream>
+#include "constants.h"
 #include "map.h"
 #include "view.h"
 #include "player.h"
 #include "enemy.h"
+#include "doors.h"
+
 
 using namespace sf;
 using namespace std;
 
+void DrawHealth(float health, RenderWindow & window, View & view)
+{
+	int i;
 
+	Texture heartTexture;
+	heartTexture.loadFromFile("images/hearts.png");
+	Sprite fullHP;
+	fullHP.setTexture(heartTexture);
+	fullHP.setTextureRect(IntRect(0,0,16,16));
+	fullHP.setScale(2, 2);
+	Sprite halfHP;
+	halfHP.setTexture(heartTexture);
+	halfHP.setTextureRect(IntRect(16, 0, 16, 16));
+	halfHP.setScale(2, 2);
+
+	for (i = 1; i <= health; i += 1)
+	{
+		fullHP.setPosition(view.getCenter().x - WINDOW_WIDTH/2 + i * 35, view.getCenter().y - WINDOW_HEIGHT/2 + 10);
+		window.draw(fullHP);
+	}
+	if (health - int(health) != 0)
+	{
+		halfHP.setPosition(view.getCenter().x - WINDOW_WIDTH/2 + i * 35, view.getCenter().y - WINDOW_HEIGHT/2 + 10);
+		window.draw(halfHP);
+	}
+}
+
+void DrawMap(Sprite & doorSprite, Sprite & rockSprite, RenderWindow & window)
+{
+	for (int i = 0; i < HEIGHT_MAP; i++)
+		for (int j = 0; j < WIDTH_MAP; j++)
+		{
+			if (tileMap[i][j] == 's')
+			{
+				rockSprite.setTextureRect(IntRect(0, 0, TILE_SIDE, TILE_SIDE));
+				rockSprite.setPosition(j * TILE_SIDE, i * TILE_SIDE);
+				window.draw(rockSprite);
+			}
+			else if (tileMap[i][j + 1] == 'u')
+			{
+				doorSprite.setTextureRect(IntRect(0, 0, TILE_SIDE, TILE_SIDE));
+				doorSprite.setPosition(j * TILE_SIDE + TILE_SIDE/2, i * TILE_SIDE - TILE_SIDE);
+				doorSprite.setRotation(0);
+				window.draw(doorSprite);
+			}
+			else if (tileMap[i][j + 1] == 'd')
+			{
+				doorSprite.setTextureRect(IntRect(0, 0, TILE_SIDE, TILE_SIDE));
+				doorSprite.setPosition(j * TILE_SIDE + 160, i * TILE_SIDE + 128);
+				doorSprite.setRotation(180);
+				window.draw(doorSprite);
+			}
+			else if (tileMap[i][j + 1] == 'r')
+			{
+				doorSprite.setTextureRect(IntRect(0, 0, TILE_SIDE, TILE_SIDE));
+				doorSprite.setPosition(j * TILE_SIDE + 192, i * TILE_SIDE);
+				doorSprite.setRotation(90);
+				window.draw(doorSprite);
+			}
+			else if (tileMap[i][j + 1] == 'l')
+			{
+				doorSprite.setTextureRect(IntRect(0, 0, TILE_SIDE, TILE_SIDE));
+				doorSprite.setPosition(j * TILE_SIDE, i * TILE_SIDE + TILE_SIDE * 2);
+				doorSprite.setRotation(270);
+				window.draw(doorSprite);
+			}
+		}
+}
 
 int main()
 {
-	//karta i taili
-	Image map_image;
-	map_image.loadFromFile("images/Rock.png");
-	Texture map;
-	map.loadFromImage(map_image);
-	Sprite s_map;
-	s_map.setTexture(map);
+	bool isShoot = false;
+	float lastShoot = 0;
+
+
+	//rock
+	Image rockImage;
+	rockImage.loadFromFile("images/Rock.png");
+	Texture rockTexture;
+	rockTexture.loadFromImage(rockImage);
+	Sprite rockSprite;
+	rockSprite.setTexture(rockTexture);
 	
+	//door
+	Image doorImage;
+	doorImage.loadFromFile("images/Door.png");
+	Texture doorTexture;
+	doorTexture.loadFromImage(doorImage);
+	Sprite doorSprite;
+	doorSprite.setTexture(doorTexture);
+	doorSprite.setScale(2, 2);
+
 	//background
 	Image mapBackground;
-	mapBackground.loadFromFile("images/bigMap.png");
+	mapBackground.loadFromFile("images/bigMap1.png");
 	Texture mapBackgroundTexture;
 	mapBackgroundTexture.loadFromImage(mapBackground);
 	Sprite mapBackgroundSprite;
@@ -36,23 +119,31 @@ int main()
 	Image enemyImage;
 	enemyImage.loadFromFile("images/fly.png");
 
-	//enemy
-	Enemy e1(enemyImage, 128, 128, 57, 45, "EnemyFly");
-	Enemy e2(enemyImage, 250, 350, 57, 45, "EnemyFly");
+	
+	//mass of enemies
+	Enemy enemies[10] = 
+	{
+		{enemyImage, FLY1_POSITION_X, FLY1_POSITION_Y, FLY_WIDTH, FLY_HEIGHT, "EnemyFly", 1},
+		{enemyImage, FLY2_POSITION_X, FLY2_POSITION_Y, FLY_WIDTH, FLY_HEIGHT, "EnemyFly", 1}
+	};
 
 
 	//sozdanie igroka
-	Player p(heroImage, 250, 200, 56, 96, "Hero");
+	Player p(heroImage, PLAYER_POSITION_X, PLAYER_POSITION_Y, PLAYER_WIDTH, PLAYER_HEIGHT, "Hero", 6);
 
+	RenderWindow window(VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), "Game");
 
-	
-
-	RenderWindow window(sf::VideoMode(960, 640), "Game");
-
-	view.reset(FloatRect(0, 0, 960, 640));
-
+	view.reset(FloatRect(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT));
 
 	Clock clock;
+	Clock gameTimer;
+	float gameTime;
+
+
+	//время
+	float hitTimer = 0;
+
+
 
 	while (window.isOpen())
 	{
@@ -60,52 +151,80 @@ int main()
 		clock.restart();
 		time = time / 500;
 
+		//
+		if (p.health > 0)
+		{
+			gameTime = gameTimer.getElapsedTime().asSeconds();
+		}
 
-		sf::Event event;
+
+		Event event;
 		while (window.pollEvent(event))
 		{
-			if (event.type == sf::Event::Closed)
+			if (event.type == Event::Closed)
 				window.close();
 		}
 		
 
-		p.update(time);
-		e1.update(time);
-		e2.update(time);
+		p.update(time, gameTime, lastShoot);
+		
+		//enemy update
+		for (int i = 0; i < 2; i++)
+		{
+			enemies[i].update(time);
+		}
 
 
-
-
-		viewmap(time);
 		window.setView(view);
 		window.clear();
 
-
+		//zadnii fon
 		window.draw(mapBackgroundSprite);
 
-
-		for (int i = 0; i < HEIGHT_MAP; i++)
-			for (int j = 0; j < WIDTH_MAP; j++)
+		//drawing map
+		DrawMap(doorSprite, rockSprite, window);
+		
+		//check colisions with player
+		for (int i = 0; i < 2; i++)
+		{
+			if (p.sprite.getGlobalBounds().contains(enemies[i].x + (enemies[i].sprite.getGlobalBounds().width / 2), enemies[i].y + (enemies[i].sprite.getGlobalBounds().height / 2)))
 			{
-				if (TileMap[i][j] == 'r')
+				if (gameTime > hitTimer + 1 || hitTimer == 0)
 				{
-					s_map.setTextureRect(IntRect(0, 0, 64, 64));
-					s_map.setPosition(j * 64, i * 64);
-					window.draw(s_map);
+					p.health -= 0.5;
+					hitTimer = gameTime;
 				}
 			}
-	
+		}
 
-		//draw
-		window.draw(p.sprite);
-		if (e1.health > 0)
+		//cout << isShoot << endl;
+
+		//cout << p.dir << endl;
+
+
+		//HP bar
+		DrawHealth(p.health, window, view);
+		
+		//while HP > 0 draw  
+		if (p.health > 0)
 		{
-			window.draw(e1.sprite);
+			window.draw(p.sprite);
 		}
-		if (e2.health > 0)
+		for (int i = 0; i < 2; i++)
 		{
-			window.draw(e2.sprite);
+			if (enemies[i].health > 0)
+				window.draw(enemies[i].sprite);
 		}
+
+		for (int i = 0; i < size(bullets); i++)
+		{
+			if (bullets[i].life == true)
+			{
+				bullets[i].deleteBullet(gameTime);
+				bullets[i].update(time, window);
+			}
+		}
+
 
 
 		window.display();

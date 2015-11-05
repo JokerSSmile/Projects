@@ -32,8 +32,11 @@ public:
 			sprite.setTextureRect(IntRect(0, 45, w, h));
 		}
 	}
+
+	//player control
 	void control(float time, float gameTime, float &lastShot)
 	{
+		//move
 		if (Keyboard::isKeyPressed(Keyboard::A) && Keyboard::isKeyPressed(Keyboard::W))
 		{
 			dir = leftUp;
@@ -98,10 +101,24 @@ public:
 			if (CurrentFrame > 4) CurrentFrame -= 4;
 			sprite.setTextureRect(IntRect(56 * int(CurrentFrame), 40, 56, 96));
 		}
-		if (Mouse::isButtonPressed(Mouse::Left))
+		//shoot
+		if (Keyboard::isKeyPressed(Keyboard::Left))
 		{
-			shoot(gameTime, lastShot);
+			shoot(gameTime, lastShot, 4);
 		}
+		else if (Keyboard::isKeyPressed(Keyboard::Up))
+		{
+			shoot(gameTime, lastShot, 5);
+		}
+		else if (Keyboard::isKeyPressed(Keyboard::Down))
+		{
+			shoot(gameTime, lastShot, 6);
+		}
+		else if (Keyboard::isKeyPressed(Keyboard::Right))
+		{
+			shoot(gameTime, lastShot, 7);
+		}
+
 		//else
 		//{
 		//	dir = stay;
@@ -109,6 +126,7 @@ public:
 		//}
 	}
 
+	//collisions
 	void checkCollosion()//ф-ция взаимодействия с картой
 	{
 		for (int i = (y + h / 1.5) / TILE_SIDE; i < (y + h) / TILE_SIDE; i++)
@@ -158,30 +176,31 @@ public:
 		
 	}
 
-	void shoot(float gameTime, float &lastShoot)
+	//player shoot
+	void shoot(float gameTime, float &lastShootPlayer, int dir)
 	{
 		for (int i = 0; i <= size(bullets); i++)
 		{
-			if (bullets[i].life == false && (gameTime > (lastShoot + 0.2)))
+			if (bullets[i].life == false && (gameTime > (lastShootPlayer + 0.5)))
 			{
-				cout << lastShoot << "     " << gameTime << endl;
+				bullets[i].isPlayers = true;
 				bullets[i].life = true;
-				bullets[i].x = x + w/2;
+				bullets[i].x = x + w/2 - 16;
 				bullets[i].y = y + 16;
 				bullets[i].timeShot = gameTime;
 				bullets[i].direction = dir;
-				lastShoot = bullets[i].timeShot;
-				//cout << lastShoot << "     " << gameTime << endl;
-				//cout << bullets[i].life << endl;
+				bullets[i].speed = 0.3;
+				lastShootPlayer = bullets[i].timeShot;
 				break;
 			}
 		}
 	}
 
-	void update(float time, float gameTime, float &lastShoot)
+	//player update
+	void update(float time, float gameTime, float &lastShootPlayer)
 	{
 
-		control(time, gameTime, lastShoot);
+		control(time, gameTime, lastShootPlayer);
 		 
 		switch (dir)
 		{
@@ -202,8 +221,6 @@ public:
 
 		speed = 0;
 		sprite.setPosition(x, y);
-
-
 
 
 		checkCollosion();//вызываем функцию, отвечающую за взаимодействие с картой

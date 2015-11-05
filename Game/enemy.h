@@ -1,5 +1,6 @@
 #include <SFML/Graphics.hpp>
-
+#include <string>
+#include <ostream>
 
 using namespace sf;
 using namespace std;
@@ -12,6 +13,7 @@ private:
 	float currentFrame = 0;
 	int randNum;
 public:
+	float lastShootEnemyStand = 0;
 	Enemy() {};
 	Enemy(Image & image, float X, float Y, int W, int H, String Name, float Health) :Character(image, X, Y, w, h, Name, health)
 	{
@@ -19,25 +21,23 @@ public:
 		h = H;
 		x = X;
 		y = Y;
+		health = Health;
 		if (name == "EnemyFly")
 		{
-			dx = 0.1;
-			health = 1.0;
+			dx = -0.1;
 		}
-		else if (name == "Zombie")
+		if (name == "StandAndShoot")
 		{
-			dx = 0;
-			health = 1.5;
+			
 		}
 	}
 
-	void checkCollosion()//ф-ция взаимодействия с картой
+	void checkCollosionFly()//ф-ция взаимодействия с картой
 	{
-		
-		for (int i = y / TILE_SIDE; i < (y + h) / TILE_SIDE; i++)//проходимся по всей карте, то есть по всем квадратикам размера 32*32, которые мы окрашивали в 9 уроке. про условия читайте ниже.
-			for (int j = x / TILE_SIDE; j < (x + w) / TILE_SIDE; j++)//икс делим на 32, тем самым получаем левый квадратик, с которым персонаж соприкасается. (он ведь больше размера 32*32, поэтому может одновременно стоять на нескольких квадратах). А j<(x + w) / 32 - условие ограничения координат по иксу. то есть координата самого правого квадрата, который соприкасается с персонажем. таким образом идем в цикле слева направо по иксу, проходя по от левого квадрата (соприкасающегося с героем), до правого квадрата (соприкасающегося с героем)
+		for (int i = y / TILE_SIDE; i < (y + h) / TILE_SIDE; i++)
+			for (int j = x / TILE_SIDE; j < (x + w) / TILE_SIDE; j++)
 			{
-				if (tileMap[i][j] == '0' || tileMap[i][j] == 's')//если наш квадратик соответствует символу 0 (стена), то проверяем "направление скорости" персонажа:
+				if (tileMap[i][j] == '0' || tileMap[i][j] == 's')
 				{
 					if (dx > 0)//right
 					{
@@ -51,12 +51,12 @@ public:
 					}
 					else if (dy > 0)
 					{
-						y = i * TILE_SIDE - h;
+						y = i * TILE_SIDE;
 						//dy = -0.1;
 					}
 					else if (dy < 0)
-					{	
-						y = i * TILE_SIDE + h;
+					{
+						y = i * TILE_SIDE;
 						//dy = 0.1;
 					}
 					dy = -dy;
@@ -65,18 +65,55 @@ public:
 			}
 	}
 
+	void shoot(float gameTime, int dir)
+	{
+		for (int i = 0; i <= size(bullets); i++)
+		{
+			if (bullets[i].life == false && (gameTime > (lastShootEnemyStand + 2)))
+			{
+				bullets[i].isPlayers = false;
+				bullets[i].life = true;
+				bullets[i].x = x + w / 2 - 16;
+				bullets[i].y = y + 16;
+				bullets[i].timeShot = gameTime;
+				bullets[i].direction = dir;
+				bullets[i].speed = 0.2;
+				lastShootEnemyStand = bullets[i].timeShot;
+				cout << bullets[i].bulletSprite.getPosition().x << endl;
+				break;
+			}
+		}
+	}
 
-	void update(float time)
+
+	void update(float time, float gameTime, RenderWindow & window)
 	{
 		if (name == "EnemyFly")
 		{
 			currentFrame += 0.005 * time;
 			if (currentFrame > 2) currentFrame -= 2;
 			sprite.setTextureRect(IntRect(57 * int(currentFrame), 0, 57, 45));
+			checkCollosionFly();
 		}
-		checkCollosion();
+
+		else if (name == "StandAndShoot")
+		{
+			shoot(gameTime, 4);
+			sprite.setScale(2, 2);
+			if (lastShootEnemyStand + 0.3 <= gameTime)
+			{
+				sprite.setTextureRect(IntRect(0, 0, 38, 43));
+			}
+			else
+			{
+				sprite.setTextureRect(IntRect(38, 0, 38, 43));
+			}
+		}
+		
 		x += dx * time;
 		y += dy * time;
+
+
 		sprite.setPosition(x, y);
 	}
 	

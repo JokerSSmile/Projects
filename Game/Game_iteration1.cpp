@@ -8,9 +8,14 @@
 #include "doors.h"
 
 
+#include "stdafx.h"
+#include <string>
+
+
 using namespace sf;
 using namespace std;
 
+//draw health bar
 void DrawHealth(float health, RenderWindow & window, View & view)
 {
 	int i;
@@ -38,6 +43,7 @@ void DrawHealth(float health, RenderWindow & window, View & view)
 	}
 }
 
+//draw map
 void DrawMap(Sprite & doorSprite, Sprite & rockSprite, RenderWindow & window)
 {
 	for (int i = 0; i < HEIGHT_MAP; i++)
@@ -82,9 +88,8 @@ void DrawMap(Sprite & doorSprite, Sprite & rockSprite, RenderWindow & window)
 
 int main()
 {
-	bool isShoot = false;
-	float lastShoot = 0;
-
+	//players last shoot time
+	float lastShootPlayer = 0;
 
 	//rock
 	Image rockImage;
@@ -105,7 +110,7 @@ int main()
 
 	//background
 	Image mapBackground;
-	mapBackground.loadFromFile("images/bigMap1.png");
+	mapBackground.loadFromFile("images/bigMap.png");
 	Texture mapBackgroundTexture;
 	mapBackgroundTexture.loadFromImage(mapBackground);
 	Sprite mapBackgroundSprite;
@@ -119,45 +124,51 @@ int main()
 	Image enemyImage;
 	enemyImage.loadFromFile("images/fly.png");
 
+	//standAndShoot
+	Image standAndShootImage;
+	standAndShootImage.loadFromFile("images/StandAndShoot.png");
 	
 	//mass of enemies
 	Enemy enemies[10] = 
 	{
 		{enemyImage, FLY1_POSITION_X, FLY1_POSITION_Y, FLY_WIDTH, FLY_HEIGHT, "EnemyFly", 1},
-		{enemyImage, FLY2_POSITION_X, FLY2_POSITION_Y, FLY_WIDTH, FLY_HEIGHT, "EnemyFly", 1}
+		{enemyImage, FLY2_POSITION_X, FLY2_POSITION_Y, FLY_WIDTH, FLY_HEIGHT, "EnemyFly", 1},
+		{standAndShootImage, 1400, 200, 38, 43, "StandAndShoot", 3}
 	};
-
 
 	//sozdanie igroka
 	Player p(heroImage, PLAYER_POSITION_X, PLAYER_POSITION_Y, PLAYER_WIDTH, PLAYER_HEIGHT, "Hero", 6);
 
+	//window
 	RenderWindow window(VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), "Game");
 
+	//view
 	view.reset(FloatRect(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT));
 
+	//clock
 	Clock clock;
 	Clock gameTimer;
-	float gameTime;
 
-
-	//время
+	//last player hit time
 	float hitTimer = 0;
 
-
+	//game time
+	float gameTime;
 
 	while (window.isOpen())
 	{
+		//time
 		float time = clock.getElapsedTime().asMicroseconds();
 		clock.restart();
 		time = time / 500;
 
-		//
+		//game time
 		if (p.health > 0)
 		{
 			gameTime = gameTimer.getElapsedTime().asSeconds();
 		}
 
-
+		//event
 		Event event;
 		while (window.pollEvent(event))
 		{
@@ -165,20 +176,27 @@ int main()
 				window.close();
 		}
 		
-
-		p.update(time, gameTime, lastShoot);
+		//player update
+		p.update(time, gameTime, lastShootPlayer);
 		
 		//enemy update
-		for (int i = 0; i < 2; i++)
+		for (int i = 0; i < size(enemies); i++)
 		{
-			enemies[i].update(time);
+			if (enemies[i].health > 0)
+			{
+				enemies[i].update(time, gameTime, window);
+			}
 		}
 
-
+		//view
 		window.setView(view);
+
+		//clear screen
 		window.clear();
 
-		//zadnii fon
+		//background
+		mapBackgroundSprite.setOrigin(mapBackgroundSprite.getGlobalBounds().width / 2, mapBackgroundSprite.getGlobalBounds().height / 2);
+		mapBackgroundSprite.setPosition(view.getCenter().x, view.getCenter().y);
 		window.draw(mapBackgroundSprite);
 
 		//drawing map
@@ -197,11 +215,6 @@ int main()
 			}
 		}
 
-		//cout << isShoot << endl;
-
-		//cout << p.dir << endl;
-
-
 		//HP bar
 		DrawHealth(p.health, window, view);
 		
@@ -210,25 +223,56 @@ int main()
 		{
 			window.draw(p.sprite);
 		}
-		for (int i = 0; i < 2; i++)
+		for (int i = 0; i < size(enemies); i++)
 		{
 			if (enemies[i].health > 0)
 				window.draw(enemies[i].sprite);
+			else
+			{
+				enemies[i].x = 0;
+				enemies[i].y = 0;
+			}
 		}
 
+		//going through bullets mass and delete/update it. Check collisions with player, enemies
 		for (int i = 0; i < size(bullets); i++)
 		{
 			if (bullets[i].life == true)
 			{
+				for (int k = 0; k < size(enemies); k++)
+				{
+					if (enemies[k].health > 0)
+					{
+						if (bullets[i].isPlayers == true)
+						{
+							if (enemies[k].sprite.getGlobalBounds().contains(bullets[i].x + bullets[i].w / 2, bullets[i].y + bullets[i].h / 2))
+							{
+								bullets[i].life = false;
+								enemies[k].health -= 0.5;
+							}
+						}
+					}
+				}
+				if (bullets[i].isPlayers == false)
+				{
+					if (p.sprite.getGlobalBounds().contains(bullets[i].x + bullets[i].w / 2, bullets[i].y + bullets[i].h / 2))
+					{
+						bullets[i].life = false;
+						bullets[i].isPlayers = false;
+						p.health -= 0.5;
+					}
+				}
 				bullets[i].deleteBullet(gameTime);
-				bullets[i].update(time, window);
+				bullets[i].update(time, window, gameTime);
 			}
 		}
 
 
+		//enemies[2].sprite.setPosition(enemies[2].x, enemies[2].y);
+		//window.draw(enemies[2].sprite);
 
+		//display screen
 		window.display();
 	}
-
 	return 0;
 }

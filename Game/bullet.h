@@ -1,6 +1,8 @@
 #include <SFML/Graphics.hpp>
 
 
+const int SIZE_BULLETS = 50;
+
 
 struct
 {
@@ -8,38 +10,51 @@ private:
 
 	float dy;
 	float dx;
-	float speed = 0.2;
+public:
 	int h = 32;
 	int w = 32;
-public:
 	int direction;
 	float x = 0;
 	float y = 0;
 	bool life = false;
 	float timeShot;
 	Sprite bulletSprite;
+	bool isPlayers = false;
+	float speed;
 
 	void checkCollision()
 	{
-		for (int k = 0; k < size(bullets); k++)
+		if (life == true)
 		{
-			if (bullets[k].life == true)
-			{
-				for (int i = (y + 16) * 1.5 / TILE_SIDE ; i < (y + h) / TILE_SIDE; i++)
+			for (int i = (y + h*1.5) / TILE_SIDE; i < (y + h * 1.5) / TILE_SIDE; i++)
+				for (int j = (x / TILE_SIDE); j < (x + w) / TILE_SIDE; j++)
 				{
-					for (int j = x / TILE_SIDE; j < (x + w) / TILE_SIDE; j++)
+					if (tileMap[i][j] == '0' || tileMap[i][j] == 's')
 					{
-						if (tileMap[i][j] == '0' || tileMap[i][j] == 's')//если наш квадратик соответствует символу 0 (стена), то проверяем "направление скорости" персонажа:
-						{
-							bullets[k].life = false;
-						}
+						life = false;
+						
 					}
 				}
-			}
 		}
 	}
 
-	void update(float time, RenderWindow & window)
+	void deleteBullet(float gameTime)
+	{
+		if (life == true)
+		{
+			if (gameTime > timeShot + 1)
+			{
+				isPlayers = false;
+				life = false;
+				x = 0;
+				y = 0;
+			}
+
+		}
+	}
+
+
+	void update(float time, RenderWindow & window, float gameTime)
 	{
 
 		Texture bulletTexture;
@@ -58,6 +73,7 @@ public:
 			case 5: dx = 0; dy = -speed; break;
 			case 6: dx = 0; dy = speed; break;
 			case 7: dx = speed; dy = 0; break;
+			case 8: dx = 0; dy = speed; break;
 		}
 
 		
@@ -65,27 +81,20 @@ public:
 		x += dx * time;
 		y += dy * time;
 
-		checkCollision();
 		bulletSprite.setPosition(x, y);
 
-		for (int i = 0; i < size(bullets); i++)
+		deleteBullet(gameTime);
+		checkCollision();
+
+		cout << isPlayers << endl;
+
+
+		if (life == true)
 		{
-			if (bullets[i].life == true)
-			{
-				window.draw(bullets[i].bulletSprite);
-			}
+			window.draw(bulletSprite);
 		}
+
+
 	}
 
-	void deleteBullet(float gameTime)
-	{
-		for (int i = 0; i < size(bullets); i++)
-		{
-			if (bullets[i].life == true)
-			{
-				if (gameTime > bullets[i].timeShot + 1)
-					bullets[i].life = false;
-			}
-		}
-	}
-}bullets[50];
+}bullets[SIZE_BULLETS];

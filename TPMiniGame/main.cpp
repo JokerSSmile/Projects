@@ -133,121 +133,161 @@ int  isMouseOnCell(sf::RenderWindow & window, int turn)
 	{
 		if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
 		{
-			if ((10 <= MX && MX <= 210) && (10 <= MY && MY <= 210) && field[0][0] == 0)
+			if (10 <= MX && MX <= 210)
 			{
-				if (turn == 2)
+				if (10 <= MY && MY <= 210)
 				{
-					field[0][0] = 2;
-					turn = 1;
+					if (field[0][0] == 0)
+					{
+						if (turn == 2)
+						{
+							field[0][0] = 2;
+							turn = 1;
+						}
+						else
+						{
+							field[0][0] = 1;
+							turn = 2;
+						}
+					}
 				}
-				else
+				else if (220 <= MY && MY <= 420)
 				{
-					field[0][0] = 1;
-					turn = 2;
+					if (field[1][0] == 0)
+					{
+						if (turn == 2)
+						{
+							field[1][0] = 2;
+							turn = 1;
+						}
+						else
+						{
+							field[1][0] = 1;
+							turn = 2;
+						}
+					}
+				}
+				else if (430 <= MY && MY <= 630)
+				{
+					if (field[2][0] == 0)
+					{
+						if (turn == 2)
+						{
+							field[2][0] = 2;
+							turn = 1;
+						}
+						else
+						{
+							field[2][0] = 1;
+							turn = 2;
+						}
+					}
 				}
 			}
-			else if ((220 <= MX && MX <= 420) && (10 <= MY && MY <= 210) && field[0][1] == 0)
+			else if (220 <= MX && MX <= 420)
 			{
-				if (turn == 2)
+				if (10 <= MY && MY <= 210)
 				{
-					field[0][1] = 2;
-					turn = 1;
+					if (field[0][1] == 0)
+					{
+						if (turn == 2)
+						{
+							field[0][1] = 2;
+							turn = 1;
+						}
+						else
+						{
+							field[0][1] = 1;
+							turn = 2;
+						}
+					}
 				}
-				else
+
+
+				else if (220 <= MY && MY <= 420)
 				{
-					field[0][1] = 1;
-					turn = 2;
+					if (field[1][1] == 0)
+					{
+						if (turn == 2)
+						{
+							field[1][1] = 2;
+							turn = 1;
+						}
+						else
+						{
+							field[1][1] = 1;
+							turn = 2;
+						}
+					}
+				}
+				else if (430 <= MY && MY <= 630)
+				{
+					if (field[2][1] == 0)
+					{
+						if (turn == 2)
+						{
+							field[2][1] = 2;
+							turn = 1;
+						}
+						else
+						{
+							field[2][1] = 1;
+							turn = 2;
+						}
+					}
 				}
 			}
-			else if ((430 <= MX && MX <= 630) && (10 <= MY && MY <= 210) && field[0][2] == 0)
+			else if (430 <= MX && MX <= 630)
 			{
-				if (turn == 2)
+				if (10 <= MY && MY <= 210)
 				{
-					field[0][2] = 2;
-					turn = 1;
+					if (field[0][2] == 0)
+					{
+						if (turn == 2)
+						{
+							field[0][2] = 2;
+							turn = 1;
+						}
+						else
+						{
+							field[0][2] = 1;
+							turn = 2;
+						}
+					}
 				}
-				else
+
+
+				else if (220 <= MY && MY <= 420)
 				{
-					field[0][2] = 1;
-					turn = 2;
+					if (field[1][2] == 0)
+					{
+						if (turn == 2)
+						{
+							field[1][2] = 2;
+							turn = 1;
+						}
+						else
+						{
+							field[1][2] = 1;
+							turn = 2;
+						}
+					}
 				}
-			}
-			else if ((10 <= MX && MX <= 210) && (220 <= MY && MY <= 420) && field[1][0] == 0)
-			{
-				if (turn == 2)
+				else if (430 <= MY && MY <= 630)
 				{
-					field[1][0] = 2;
-					turn = 1;
-				}
-				else
-				{
-					field[1][0] = 1;
-					turn = 2;
-				}
-			}
-			else if ((220 <= MX && MX <= 420) && (220 <= MY && MY <= 420) && field[1][1] == 0)
-			{
-				if (turn == 2)
-				{
-					field[1][1] = 2;
-					turn = 1;
-				}
-				else
-				{
-					field[1][1] = 1;
-					turn = 2;
-				}
-			}
-			else if ((430 <= MX && MX <= 630) && (220 <= MY && MY <= 420) && field[1][2] == 0)
-			{
-				if (turn == 2)
-				{
-					field[1][2] = 2;
-					turn = 1;
-				}
-				else
-				{
-					field[1][2] = 1;
-					turn = 2;
-				}
-			}
-			else if ((10 <= MX && MX <= 210) && (430 <= MY && MY <= 630) && field[2][0] == 0)
-			{
-				if (turn == 2)
-				{
-					field[2][0] = 2;
-					turn = 1;
-				}
-				else
-				{
-					field[2][0] = 1;
-					turn = 2;
-				}
-			}
-			else if ((220 <= MX && MX <= 420) && (430 <= MY && MY <= 630) && field[2][1] == 0)
-			{
-				if (turn == 2)
-				{
-					field[2][1] = 2;
-					turn = 1;
-				}
-				else
-				{
-					field[2][1] = 1;
-					turn = 2;
-				}
-			}
-			else if ((430 <= MX && MX <= 630) && (430 <= MY && MY <= 630) && field[2][2] == 0)
-			{
-				if (turn == 2)
-				{
-					field[2][2] = 2;
-					turn = 1;
-				}
-				else
-				{
-					field[2][2] = 1;
-					turn = 2;
+					if (field[2][2] == 0)
+					{
+						if (turn == 2)
+						{
+							field[2][2] = 2;
+							turn = 1;
+						}
+						else
+						{
+							field[2][2] = 1;
+							turn = 2;
+						}
+					}
 				}
 			}
 		}
@@ -336,297 +376,230 @@ int checkWin(sf::RenderWindow & window)
 	return 0;
 }
 
-
-// ход пк
-void  pcTurn(sf::RenderWindow & window, int turnCounter)
+void firstPCTurn()
 {
-	if (turnCounter == 0)
-	{
-		field[1][1] = 1;
-		turn = 2;
-	}
-	else if (turnCounter == 2)
-	{
-		if (field[0][0] == 0 && field[0][2] == 0 && field[2][0] == 0 && field[2][2] == 0)
-		{
-			if (field[0][2] == 0)
-			{
-				field[0][2] = 1;
-				turn = 2;
-			}
-			else
-			{
-				field[0][0] = 1;
-				turn = 2;
-			}
-		}
-		else if ((field[0][1] == 0 && field[1][0] == 0 && field[2][1] == 0 && field[1][2] == 0))
-		{
+	field[1][1] = 1;
+	turn = 2;
+}
 
-			if (field[2][0] == 0)
-			{
-				field[2][0] = 1;
-				turn = 2;
-			}
-			else
-			{
-				field[0][2] = 1;
-				turn = 2;
-			}
-		}
-	}
-	else if (turnCounter == 4)
+void secondPCTurn()
+{
+	if (field[0][0] == 0 && field[0][2] == 0 && field[2][0] == 0 && field[2][2] == 0)
 	{
-		
-		if (field[0][2] == 1 && field[1][1] == 1 && field[2][0] == 0)
+		if (field[0][2] == 0)
 		{
-			field[2][0] = 1;
+			field[0][2] = 1;
 			turn = 2;
 		}
-		else if (field[1][0] == 2 && field[2][0] == 2 && field[0][0] == 0)
+		else
 		{
 			field[0][0] = 1;
 			turn = 2;
 		}
-		else if (field[0][2] == 1 && field[2][0] == 2)
+	}
+	else if ((field[0][1] == 0 && field[1][0] == 0 && field[2][1] == 0 && field[1][2] == 0))
+	{
+
+		if (field[2][0] == 0)
 		{
-			if (field[2][2] == 0)
-			{
-				if (field[1][2] == 0)
-				{
-					field[2][2] = 1;
-					turn = 2;
-				}
-				else if (field[1][2] == 2)
-				{
-					field[0][0] = 1;
-					turn = 2;
-				}
-			}
-			else if (field[2][2] == 2)
-			{
-				field[2][1] = 1;
-				turn = 2;
-			}
+			field[2][0] = 1;
+			turn = 2;
 		}
-		else if (field[0][2] == 2)
-		{
-			if (field[0][0] == 2)
-			{
-				field[0][1] = 1;
-				turn = 2;
-			}
-			else if (field[0][1] == 2)
-			{
-				field[0][0] = 1;
-				turn = 2;
-			}
-			else if (field[1][0] == 2)
-			{
-				field[2][1] = 1;
-				turn = 2;
-			}
-			else if (field[1][2] == 2)
-			{
-				field[2][2] = 1;
-				turn = 2;
-			}
-			else if (field[2][1] == 2)
-			{
-				field[1][0] = 1;
-				turn = 2;
-			}
-			else if (field[2][2] == 2)
-			{
-				field[1][2] = 1;
-				turn = 2;
-			}
-		}
-		else if (field[0][2] == 0)
+		else
 		{
 			field[0][2] = 1;
 			turn = 2;
 		}
 	}
-	else if (turnCounter == 6)
-	{
-		if (field[0][2] == 1 && field[2][0] == 2)
-		{
-			if (field[2][2] == 1)
-			{
-				if (field[1][2] == 0)
-				{
-					field[1][2] = 1;
-					turn = 2;
-				}
+}
 
-				else if (field[1][2] == 2 && field[0][0] == 0)
-				{
-					field[0][0] = 1;
-					turn = 2;
-				}
-				else if (field[0][0] == 2 && field[1][2] == 2 && field)
-				{
-					field[1][0] = 1;
-					turn = 2;
-				}
-			}
-			else if (field[2][2] == 2)
+void thirdPCTurn()
+{
+	if (field[0][2] == 1 && field[1][1] == 1 && field[2][0] == 0)
+	{
+		field[2][0] = 1;
+		turn = 2;
+	}
+	else if (field[1][0] == 2 && field[2][0] == 2 && field[0][0] == 0)
+	{
+		field[0][0] = 1;
+		turn = 2;
+	}
+	else if (field[0][2] == 1 && field[2][0] == 2)
+	{
+		if (field[2][2] == 0)
+		{
+			if (field[1][2] == 0)
 			{
-				if (field[1][2] == 2 && field[0][1] == 0 && field[2][1] == 1)
-				{
-					if (field[0][1] == 0)
-					{
-						field[0][1] = 1;
-					}
-				}
-				else if (field[1][2] == 2 && field[2][2] == 2 && field[1][1] == 1)
-				{
-					if (field[0][1] == 0)
-					{
-						field[0][1] = 1;
-						turn = 2;
-					}
-				}
-				else if (field[0][1] == 2 && field[2][1] == 1)
-				{
-					if (field[1][0] == 0)
-					{
-						field[1][0] = 1;
-						turn = 2;
-					}
-				}
-				else if (field[0][0] == 1 && field[1][0] == 2 && field[2][0] == 2)
-				{
-					if (field[0][1] == 0)
-					{
-						field[0][1] = 1;
-						turn = 2;
-					}
-				}
+				field[2][2] = 1;
+				turn = 2;
 			}
-			else if (field[2][2] == 0)
+			else if (field[1][2] == 2)
 			{
-				if (field[0][0] == 1 && field[1][2] == 2)
-				{
-					if (field[2][1] == 2)
-					{
-						std::cout << "1" << std::endl;
-						if (field[0][1] == 0)
-						{
-							field[0][1] = 0;
-							turn = 2;
-						}
-					}
-					else if (field[0][1] == 2)
-					{
-						std::cout << "2" << std::endl;
-						if (field[2][2] == 0)
-						{
-							field[2][2] = 1;
-							turn = 2;
-						}
-					}
-					else if (field[0][1] == 0 && field[1][0] == 2 && field[2][0] == 2)
-					{
-						field[0][1] = 1;
-						turn = 2;
-					}
-				}
-				else if (field[0][0] == 1 && field[1][0] == 2 && field[2][0] == 2)
-				{
-					std::cout << field[0][1] << std::endl;
-					if (field[2][2] == 0)
-					{
-						field[2][2] = 1;
-						turn = 2;
-					}
-					else 
-					{
-						field[0][1] = 1;
-						turn = 2;
-					}
-				}
+				field[0][0] = 1;
+				turn = 2;
 			}
 		}
-		else if (field[0][2] == 2)
+		else if (field[2][2] == 2)
 		{
-			std::cout << "4" << std::endl;
-			if (field[0][0] == 2)
+			field[2][1] = 1;
+			turn = 2;
+		}
+	}
+	else if (field[0][2] == 2)
+	{
+		if (field[0][0] == 2)
+		{
+			field[0][1] = 1;
+			turn = 2;
+		}
+		else if (field[0][1] == 2)
+		{
+			field[0][0] = 1;
+			turn = 2;
+		}
+		else if (field[1][0] == 2)
+		{
+			field[2][1] = 1;
+			turn = 2;
+		}
+		else if (field[1][2] == 2)
+		{
+			field[2][2] = 1;
+			turn = 2;
+		}
+		else if (field[2][1] == 2)
+		{
+			field[1][0] = 1;
+			turn = 2;
+		}
+		else if (field[2][2] == 2)
+		{
+			field[1][2] = 1;
+			turn = 2;
+		}
+	}
+	else if (field[0][2] == 0)
+	{
+		field[0][2] = 1;
+		turn = 2;
+	}
+}
+
+void forthPCTurn()
+{
+	if (field[0][2] == 1 && field[2][0] == 2)
+	{
+		if (field[2][2] == 1)
+		{
+			if (field[1][2] == 0)
 			{
-				if (field[2][1] == 0)
+				field[1][2] = 1;
+				turn = 2;
+			}
+
+			else if (field[1][2] == 2 && field[0][0] == 0)
+			{
+				field[0][0] = 1;
+				turn = 2;
+			}
+			else if (field[0][0] == 2 && field[1][2] == 2 && field)
+			{
+				field[1][0] = 1;
+				turn = 2;
+			}
+		}
+		else if (field[2][2] == 2)
+		{
+			if (field[1][2] == 2 && field[0][1] == 0 && field[2][1] == 1)
+			{
+				if (field[0][1] == 0)
 				{
-						field[2][1] = 1;
-						turn = 2;
+					field[0][1] = 1;
 				}
-				else if (field[2][1] == 2)
+			}
+			else if (field[1][2] == 2 && field[2][2] == 2 && field[1][1] == 1)
+			{
+				if (field[0][1] == 0)
 				{
-					field[1][2] = 1;
+					field[0][1] = 1;
 					turn = 2;
 				}
 			}
-			else if (field[0][1] == 2 && field[0][0] == 1)
+			else if (field[0][1] == 2 && field[2][1] == 1)
 			{
 				if (field[1][0] == 0)
 				{
 					field[1][0] = 1;
 					turn = 2;
 				}
-				else field[2][2] = 1;
 			}
-			else if (field[1][0] == 2 && field[2][1] == 1)
+			else if (field[0][0] == 1 && field[1][0] == 2 && field[2][0] == 2)
+			{
+				if (field[0][1] == 0)
+				{
+					field[0][1] = 1;
+					turn = 2;
+				}
+			}
+		}
+		else if (field[2][2] == 0)
+		{
+			if (field[0][0] == 1 && field[1][2] == 2)
+			{
+				if (field[2][1] == 2)
+				{
+					if (field[0][1] == 0)
+					{
+						field[0][1] = 0;
+						turn = 2;
+					}
+				}
+				else if (field[0][1] == 2)
+				{
+					if (field[2][2] == 0)
+					{
+						field[2][2] = 1;
+						turn = 2;
+					}
+				}
+				else if (field[0][1] == 0 && field[1][0] == 2 && field[2][0] == 2)
+				{
+					field[0][1] = 1;
+					turn = 2;
+				}
+			}
+			else if (field[0][0] == 1 && field[1][0] == 2 && field[2][0] == 2)
 			{
 				if (field[2][2] == 0)
 				{
 					field[2][2] = 1;
 					turn = 2;
 				}
-				else field[0][1] = 1;
-				turn = 2;
-			}
-			else if (field[1][2] == 2 && field[2][2] == 1)
-			{
-				if (field[2][1] == 0)
-					field[2][1] = 1;
 				else
 				{
-					field[0][0] = 1;
+					field[0][1] = 1;
+					turn = 2;
 				}
 			}
-			else if (field[2][2] == 2 && field[1][2] == 1)
+		}
+	}
+	else if (field[0][2] == 2)
+	{
+		if (field[0][0] == 2)
+		{
+			if (field[2][1] == 0)
 			{
-				if (field[1][0] == 0)
-					field[1][0] = 1;
-				else field[0][1] = 1;
+				field[2][1] = 1;
+				turn = 2;
 			}
 			else if (field[2][1] == 2)
 			{
-				if (field[1][2] == 0)
-					field[1][2] = 1;
-				else field[0][0] = 1;
+				field[1][2] = 1;
+				turn = 2;
 			}
 		}
-		else if (field[2][2] == 2 && field[1][2] == 2 && field[0][1] == 0 && field[2][1] == 1)
-		{
-			std::cout << "5" << std::endl;
-			field[0][1] = 1;
-			turn = 2;
-		}
-	}
-	else if (turnCounter == 8)
-	{
-		if (field[0][1] == 0)
-			field[0][1] = 1;
-		else if (field[2][1] == 0)
-			field[2][1] = 1;
-		else if (field[1][0] == 1 && field[2][1] == 1)
-		{
-			if (field[0][0] == 0)
-				field[0][0] = 1;
-			else if (field[1][2] == 0)
-				field[1][2] = 1;
-		}
-		else if (field[0][0] == 2 && field[0][2] == 2 && field[1][2] == 1)
+		else if (field[0][1] == 2 && field[0][0] == 1)
 		{
 			if (field[1][0] == 0)
 			{
@@ -635,12 +608,97 @@ void  pcTurn(sf::RenderWindow & window, int turnCounter)
 			}
 			else field[2][2] = 1;
 		}
-		else if (field[0][1] == 1 && field[1][2] == 1 && field[0][2] == 2)
+		else if (field[1][0] == 2 && field[2][1] == 1)
+		{
+			if (field[2][2] == 0)
+			{
+				field[2][2] = 1;
+				turn = 2;
+			}
+			else field[0][1] = 1;
+			turn = 2;
+		}
+		else if (field[1][2] == 2 && field[2][2] == 1)
 		{
 			if (field[2][1] == 0)
 				field[2][1] = 1;
+			else
+			{
+				field[0][0] = 1;
+			}
+		}
+		else if (field[2][2] == 2 && field[1][2] == 1)
+		{
+			if (field[1][0] == 0)
+				field[1][0] = 1;
+			else field[0][1] = 1;
+		}
+		else if (field[2][1] == 2)
+		{
+			if (field[1][2] == 0)
+				field[1][2] = 1;
 			else field[0][0] = 1;
 		}
+	}
+	else if (field[2][2] == 2 && field[1][2] == 2 && field[0][1] == 0 && field[2][1] == 1)
+	{
+		field[0][1] = 1;
+		turn = 2;
+	}
+}
+
+void fifthPCTurn()
+{
+	if (field[0][1] == 0)
+		field[0][1] = 1;
+	else if (field[2][1] == 0)
+		field[2][1] = 1;
+	else if (field[1][0] == 1 && field[2][1] == 1)
+	{
+		if (field[0][0] == 0)
+			field[0][0] = 1;
+		else if (field[1][2] == 0)
+			field[1][2] = 1;
+	}
+	else if (field[0][0] == 2 && field[0][2] == 2 && field[1][2] == 1)
+	{
+		if (field[1][0] == 0)
+		{
+			field[1][0] = 1;
+			turn = 2;
+		}
+		else field[2][2] = 1;
+	}
+	else if (field[0][1] == 1 && field[1][2] == 1 && field[0][2] == 2)
+	{
+		if (field[2][1] == 0)
+			field[2][1] = 1;
+		else field[0][0] = 1;
+	}
+}
+
+// ход пк
+void  pcTurn(sf::RenderWindow & window, int turnCounter)
+{
+	if (turnCounter == 0)
+	{
+		firstPCTurn();
+	}
+	else if (turnCounter == 2)
+	{
+		secondPCTurn();
+	}
+	else if (turnCounter == 4)
+	{
+		thirdPCTurn();
+	}
+	else if (turnCounter == 6)
+	{
+		forthPCTurn();
+	}
+	else if (turnCounter == 8)
+	{
+		fifthPCTurn();
 	}
 }
 
@@ -725,9 +783,6 @@ void playersNumber(sf::RenderWindow & window)
 		currentSprite.setTexture(currentTexture);
 
 
-
-
-
 		if (MX >= 100 && MX <= 486 && MY >= 260 && MY <= 361)
 		{
 			currentSprite.setPosition(40, 270);
@@ -754,8 +809,6 @@ void playersNumber(sf::RenderWindow & window)
 
 int main()
 {
-
-
 	//okno
 	sf::RenderWindow window(sf::VideoMode(850, 640), "Tic-Tac-Toe", sf::Style::Close);
 

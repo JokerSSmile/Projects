@@ -1,3 +1,4 @@
+#pragma once
 #include <SFML/Graphics.hpp>
 #include "character.h"
 #include "bullet.h"
@@ -13,6 +14,7 @@ struct Player:
 {
 private:
 	float CurrentFrame = 0;
+	Vector2f playerOldPosition = {x, y};
 public:
 	enum
 	{
@@ -29,12 +31,13 @@ public:
 		health = 6;
 		if (name == "Hero")
 		{
-			sprite.setTextureRect(IntRect(0, 45, w, h));
+			sprite.setTextureRect(IntRect(0, 0, w, h));
 		}
+		cout << playerOldPosition.x << endl;
 	}
 
-	//player control
-	void control(float time, float gameTime, float &lastShot)
+	//player Control
+	void Control(float time, float gameTime, float &lastShot)
 	{
 		//move
 		if (Keyboard::isKeyPressed(Keyboard::A) && Keyboard::isKeyPressed(Keyboard::W))
@@ -43,7 +46,7 @@ public:
 			speed = 0.1;
 			CurrentFrame += 0.005 * time;
 			if (CurrentFrame > 4) CurrentFrame -= 4;
-			sprite.setTextureRect(IntRect(56 * int(CurrentFrame), 168, 56, 96));
+			sprite.setTextureRect(IntRect(36 * int(CurrentFrame), 60, 36, 26));
 		}
 		else if (Keyboard::isKeyPressed(Keyboard::A) && Keyboard::isKeyPressed(Keyboard::S))
 		{
@@ -51,7 +54,7 @@ public:
 			speed = 0.1;
 			CurrentFrame += 0.005 * time;
 			if (CurrentFrame > 4) CurrentFrame -= 4;
-			sprite.setTextureRect(IntRect(56 * int(CurrentFrame), 168, 56, 96));
+			sprite.setTextureRect(IntRect(36 * int(CurrentFrame), 60, 36, 26));
 		}
 		else if (Keyboard::isKeyPressed(Keyboard::D) && Keyboard::isKeyPressed(Keyboard::W))
 		{
@@ -59,7 +62,7 @@ public:
 			speed = 0.1;
 			CurrentFrame += 0.005 * time;
 			if (CurrentFrame > 4) CurrentFrame -= 4;
-			sprite.setTextureRect(IntRect(56 * int(CurrentFrame), 296, 56, 96));
+			sprite.setTextureRect(IntRect(36 * int(CurrentFrame), 34, 36, 26));
 		}
 		else if (Keyboard::isKeyPressed(Keyboard::D) && Keyboard::isKeyPressed(Keyboard::S))
 		{
@@ -67,7 +70,7 @@ public:
 			speed = 0.1;
 			CurrentFrame += 0.005 * time;
 			if (CurrentFrame > 4) CurrentFrame -= 4;
-			sprite.setTextureRect(IntRect(56 * int(CurrentFrame), 296, 56, 96));
+			sprite.setTextureRect(IntRect(36 * int(CurrentFrame), 34, 36, 26));
 		}
 		else if (Keyboard::isKeyPressed(Keyboard::A))
 		{
@@ -75,7 +78,7 @@ public:
 			speed = 0.1;
 			CurrentFrame += 0.005 * time;
 			if (CurrentFrame > 4) CurrentFrame -= 4;
-			sprite.setTextureRect(IntRect(56 * int(CurrentFrame), 168, 56, 96));
+			sprite.setTextureRect(IntRect(36 * int(CurrentFrame), 60, 36, 26));
 		}
 		else if (Keyboard::isKeyPressed(Keyboard::D))
 		{
@@ -83,7 +86,7 @@ public:
 			speed = 0.1;
 			CurrentFrame += 0.005 * time;
 			if (CurrentFrame > 4) CurrentFrame -= 4;
-			sprite.setTextureRect(IntRect(56 * int(CurrentFrame), 296, 56, 96));
+			sprite.setTextureRect(IntRect(36 * int(CurrentFrame), 34, 36, 26));
 		}
 		else if (Keyboard::isKeyPressed(Keyboard::W))
 		{
@@ -91,7 +94,7 @@ public:
 			speed = 0.1;
 			CurrentFrame += 0.005 * time;
 			if (CurrentFrame > 4) CurrentFrame -= 4;
-			sprite.setTextureRect(IntRect(56 * int(CurrentFrame), 424, 56, 96));
+			sprite.setTextureRect(IntRect(36 * int(CurrentFrame), 0, 36, 26));
 		}
 		else if (Keyboard::isKeyPressed(Keyboard::S))
 		{
@@ -99,85 +102,35 @@ public:
 			speed = 0.1;
 			CurrentFrame += 0.005 * time;
 			if (CurrentFrame > 4) CurrentFrame -= 4;
-			sprite.setTextureRect(IntRect(56 * int(CurrentFrame), 40, 56, 96));
+			sprite.setTextureRect(IntRect(36 * int(CurrentFrame), 0, 36, 26));
 		}
-		//shoot
+		else
+		{
+			dir = stay;
+			sprite.setTextureRect(IntRect(0, 0, 36, 26));
+		}
+
+		//Shoot
 		if (Keyboard::isKeyPressed(Keyboard::Left))
 		{
-			shoot(gameTime, lastShot, 4);
+			Shoot(gameTime, lastShot, 4);
 		}
 		else if (Keyboard::isKeyPressed(Keyboard::Up))
 		{
-			shoot(gameTime, lastShot, 5);
+			Shoot(gameTime, lastShot, 5);
 		}
 		else if (Keyboard::isKeyPressed(Keyboard::Down))
 		{
-			shoot(gameTime, lastShot, 6);
+			Shoot(gameTime, lastShot, 6);
 		}
 		else if (Keyboard::isKeyPressed(Keyboard::Right))
 		{
-			shoot(gameTime, lastShot, 7);
+			Shoot(gameTime, lastShot, 7);
 		}
-
-		//else
-		//{
-		//	dir = stay;
-		//	sprite.setTextureRect(IntRect(0, 40, 56, 96));
-		//}
 	}
-
-	//collisions
-	void checkCollosion()//ф-ция взаимодействия с картой
-	{
-		for (int i = (y + h / 1.5) / TILE_SIDE; i < (y + h) / TILE_SIDE; i++)
-			for (int j = (x / TILE_SIDE); j < (x + w) / TILE_SIDE; j++)
-			{
-				if (tileMap[i][j] == '0' || tileMap[i][j] == 's')
-				{
-					if (dy > 0)//вниз
-					{
-						y--;
-					}
-					if (dy < 0)//up
-					{
-						y++;
-					}
-					if (dx > 0)//right
-					{
-						//x = j * TILE_SIDE - w;
-						x--;
-					}
-					if (dx < 0)//left
-					{
-						x++;
-					}
-				}
-				else if (tileMap[i][j] == 'd' && dy > 0)
-				{
-					view.setCenter(view.getCenter().x, view.getCenter().y + WINDOW_HEIGHT);
-					y = y + TILE_SIDE * 4 + h / 2;
-				}
-				else if (tileMap[i][j] == 'u' && dy < 0)
-				{
-					view.setCenter(view.getCenter().x, view.getCenter().y - WINDOW_HEIGHT);
-					y = y - TILE_SIDE * 4 - h / 2;
-				}
-				else if (tileMap[i][j] == 'l' && dx < 0)
-				{
-					view.setCenter(view.getCenter().x - WINDOW_WIDTH, view.getCenter().y);
-					x = x - TILE_SIDE * 4 - w - 5;
-				}
-				else if (tileMap[i][j] == 'r' && dx > 0)
-				{
-					view.setCenter(view.getCenter().x + WINDOW_WIDTH, view.getCenter().y);
-					x = x + TILE_SIDE * 4 + w + 5;
-				}
-			}
-		
-	}
-
+	
 	//player shoot
-	void shoot(float gameTime, float &lastShootPlayer, int dir)
+	void Shoot(float gameTime, float &lastShootPlayer, int dir)
 	{
 		for (int i = 0; i <= size(bullets); i++)
 		{
@@ -195,13 +148,93 @@ public:
 			}
 		}
 	}
-
-	//player update
-	void update(float time, float gameTime, float &lastShootPlayer)
+	
+	
+	void CheckCollision(bool &canMove, Sprite & wallSprite, View & view)
 	{
+		for (int i = 0; i < size(mapStruct); i++)
+		{
+			if (mapStruct[i].x != 1 && Collision::PixelPerfectTest(sprite, mapStruct[i].sprite))
+				{
+					if (mapStruct[i].pos == NOTDOOR)
+					{
+						canMove = false;
+						if (dy > 0)//вниз
+						{
+							y--;
+						}
+						if (dy < 0)//up
+						{
+							y++;
+						}
+						if (dx > 0)//right
+						{
+							x--;
+						}
+						if (dx < 0)//left
+						{
+							x++;
+						}
+						//canMove = false;
+						//break;
+					}
+					else if (mapStruct[i].pos == RIGHT)
+					{
+						view.setCenter(view.getCenter().x + WINDOW_WIDTH, view.getCenter().y);
+						x += TILE_SIDE * 4 + w;
+						break;
+					}
+					else if (mapStruct[i].pos == LEFT)
+					{
+						view.setCenter(view.getCenter().x - WINDOW_WIDTH, view.getCenter().y);
+						x -= TILE_SIDE * 4 + w;
+						break;
+					}
+					else if (mapStruct[i].pos == UP)
+					{
+						view.setCenter(view.getCenter().x, view.getCenter().y - WINDOW_HEIGHT);
+						y -= TILE_SIDE * 4 + h ;
+						break;
+					}
+					else if (mapStruct[i].pos == DOWN)
+					{
+						view.setCenter(view.getCenter().x, view.getCenter().y + WINDOW_HEIGHT);
+						y += TILE_SIDE * 4 + h;
+						break;
+					}				
+				}
+			else if (Collision::PixelPerfectTest(sprite, wallSprite))
+			{
+				canMove = false;
+				break;
+			}
+			else
+			{
+				playerOldPosition.x = x;
+				playerOldPosition.y = y;
+				canMove = true;
+			}
+		}
+	}
+	
+	//player update
+	void Update(float time, float gameTime, float &lastShootPlayer, Sprite & wallSprite, View & view)
+	{
+		bool canMove = true;
+		
+		Control(time, gameTime, lastShootPlayer);
 
-		control(time, gameTime, lastShootPlayer);
-		 
+		//CheckCollision(canMove, wallSprite, view);
+
+		cout << size(mapStruct) << endl;
+
+		CheckCollision(canMove, wallSprite, view);
+
+		if (Mouse::isButtonPressed(Mouse::Left))
+		{
+			canMove = true;
+		}
+
 		switch (dir)
 		{
 		case right: dx = speed; dy = 0; break;
@@ -212,18 +245,24 @@ public:
 		case leftDown: dx = -speed*0.66; dy = speed*0.66; break;
 		case rightUp: dx = speed*0.66; dy = -speed*0.66; break;
 		case rightDown: dx = speed*0.66; dy = speed*0.66; break;
-		//case stay: dx = 0; dy = 0;
+		case stay: dx = 0; dy = 0;
 		}
 
-		x += dx * time;
-		y += dy * time;
-
+		//cout << canMove << endl;
+		if (canMove == true)
+		{
+			x += dx * time;
+			y += dy * time;
+		}
+		else
+		{
+			x = playerOldPosition.x;
+			y = playerOldPosition.y;
+			canMove = true;
+		}
 
 		speed = 0;
 		sprite.setPosition(x, y);
-
-
-		checkCollosion();//вызываем функцию, отвечающую за взаимодействие с картой
 	}
 
 	float getPlayerCoordinateX()

@@ -1,8 +1,8 @@
 //player
 const float PLAYER_POSITION_X = 250;
 const float PLAYER_POSITION_Y = 200;
-const int PLAYER_WIDTH = 56;
-const int PLAYER_HEIGHT = 96;
+const int PLAYER_WIDTH = 36;
+const int PLAYER_HEIGHT = 26;
 
 //fly enemy
 const float FLY1_POSITION_X = 350;
@@ -22,3 +22,6 @@ const int WINDOW_HEIGHT = 640;
 
 //tile
 const int TILE_SIDE = 64;
+
+//bullets
+const int BULLET_SIDE = 32;

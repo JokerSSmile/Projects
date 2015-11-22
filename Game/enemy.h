@@ -1,9 +1,10 @@
+#pragma once
 #include <SFML/Graphics.hpp>
-#include <string>
-#include <ostream>
 
 using namespace sf;
 using namespace std;
+
+const int TIME_BETWEEN_SHOOT_ENEMY_STAND = 1;
 
 struct Enemy:
 	public Character
@@ -12,52 +13,59 @@ private:
 	float moveTimer = 0;
 	float currentFrame = 0;
 	int randNum;
+	int bulletStartX = 0;
+	int bulletStartY = 0;
+
 public:
+	int level = 0;
 	float lastShootEnemyStand = 0;
 	Enemy() {};
-	Enemy(Image & image, float X, float Y, int W, int H, String Name, float Health) :Character(image, X, Y, w, h, Name, health)
+	Enemy(Image & image, float X, float Y, int W, int H, String Name, float Health, int Level) :Character(image, X, Y, w, h, Name, health)
 	{
 		w = W;
 		h = H;
 		x = X;
 		y = Y;
 		health = Health;
+		level = Level;
 		if (name == "EnemyFly")
 		{
-			dx = -0.1;
+			dy = -0.1;
 		}
-		if (name == "StandAndShoot")
+		else if (name == "EnemyStandAndShoot")
 		{
-			
+			//
+		}
+		else if (name == "EnemyFollowPlayer")
+		{
+			dx = 0;
+			dy = 0;
 		}
 	}
 
-	void checkCollosionFly()//ф-ция взаимодействия с картой
+	void CheckCollosionFly()//ф-ция взаимодействия с картой
 	{
 		for (int i = y / TILE_SIDE; i < (y + h) / TILE_SIDE; i++)
 			for (int j = x / TILE_SIDE; j < (x + w) / TILE_SIDE; j++)
 			{
-				if (tileMap[i][j] == '0' || tileMap[i][j] == 's')
+				if (mapString[i][j] == '0' || mapString[i][j] == 's')
 				{
+					
 					if (dx > 0)//right
 					{
 						x = j * TILE_SIDE - w;
-						//dx = -0.1;
 					}
 					else if (dx < 0)//left
 					{
 						x = j * TILE_SIDE + TILE_SIDE;
-						//dx = 0.1;
 					}
 					else if (dy > 0)
 					{
 						y = i * TILE_SIDE;
-						//dy = -0.1;
 					}
 					else if (dy < 0)
 					{
 						y = i * TILE_SIDE;
-						//dy = 0.1;
 					}
 					dy = -dy;
 					dx = -dx;
@@ -65,56 +73,111 @@ public:
 			}
 	}
 
-	void shoot(float gameTime, int dir)
+	void CheckCollisionZombie()
+	{
+		for (int i = (y + h / 1.5) / TILE_SIDE; i < (y + h) / TILE_SIDE; i++)
+			for (int j = (x / TILE_SIDE); j < (x + w) / TILE_SIDE; j++)
+			{
+				if (mapString[i][j] == '0' || mapString[i][j] == 's')
+				{
+					if (dy > 0)//вниз
+					{
+						y--;
+					}
+					if (dy < 0)//up
+					{
+						y++;
+					}
+					if (dx > 0)//right
+					{
+						//x = j * TILE_SIDE - w;
+						x--;
+					}
+					if (dx < 0)//left
+					{
+						x++;
+					}
+				}
+				else if (mapString[i][j] == 'd' && dy > 0)
+				{
+					view.setCenter(view.getCenter().x, view.getCenter().y + WINDOW_HEIGHT);
+					y = y + TILE_SIDE * 4 + h / 2;
+				}
+				else if (mapString[i][j] == 'u' && dy < 0)
+				{
+					view.setCenter(view.getCenter().x, view.getCenter().y - WINDOW_HEIGHT);
+					y = y - TILE_SIDE * 4 - h / 2;
+				}
+				else if (mapString[i][j] == 'l' && dx < 0)
+				{
+					view.setCenter(view.getCenter().x - WINDOW_WIDTH, view.getCenter().y);
+					x = x - TILE_SIDE * 4 - w - 5;
+				}
+				else if (mapString[i][j] == 'r' && dx > 0)
+				{
+					view.setCenter(view.getCenter().x + WINDOW_WIDTH, view.getCenter().y);
+					x = x + TILE_SIDE * 4 + w + 5;
+				}
+			}
+	}
+
+	void Shoot(float gameTime, int dir, int bulletStartX, int bulletStartY)
 	{
 		for (int i = 0; i <= size(bullets); i++)
 		{
-			if (bullets[i].life == false && (gameTime > (lastShootEnemyStand + 2)))
+			if (bullets[i].life == false)
 			{
 				bullets[i].isPlayers = false;
 				bullets[i].life = true;
-				bullets[i].x = x + w / 2 - 16;
-				bullets[i].y = y + 16;
+				bullets[i].x = bulletStartX;
+				bullets[i].y = bulletStartY;
 				bullets[i].timeShot = gameTime;
 				bullets[i].direction = dir;
 				bullets[i].speed = 0.2;
 				lastShootEnemyStand = bullets[i].timeShot;
-				cout << bullets[i].bulletSprite.getPosition().x << endl;
 				break;
 			}
 		}
 	}
 
 
-	void update(float time, float gameTime, RenderWindow & window)
+	void Update(float time, float gameTime, RenderWindow & window, int gameLevel)
 	{
-		if (name == "EnemyFly")
+		if (gameLevel == level)
 		{
-			currentFrame += 0.005 * time;
-			if (currentFrame > 2) currentFrame -= 2;
-			sprite.setTextureRect(IntRect(57 * int(currentFrame), 0, 57, 45));
-			checkCollosionFly();
-		}
-
-		else if (name == "StandAndShoot")
-		{
-			shoot(gameTime, 4);
-			sprite.setScale(2, 2);
-			if (lastShootEnemyStand + 0.3 <= gameTime)
+			if (name == "EnemyFly")
 			{
-				sprite.setTextureRect(IntRect(0, 0, 38, 43));
+				currentFrame += 0.005 * time;
+				if (currentFrame > 2) currentFrame -= 2;
+				sprite.setTextureRect(IntRect(57 * int(currentFrame), 0, 57, 45));
+				CheckCollosionFly();
 			}
-			else
+
+			else if (name == "EnemyStandAndShoot")
 			{
-				sprite.setTextureRect(IntRect(38, 0, 38, 43));
+				if (gameTime > (lastShootEnemyStand + TIME_BETWEEN_SHOOT_ENEMY_STAND))
+				{
+					for (int i = 4; i <= 7; i++)
+					{
+						Shoot(gameTime, i, sprite.getPosition().x + sprite.getGlobalBounds().width / 2 - 16, sprite.getPosition().y + 32);
+					}
+				}
+				sprite.setScale(2, 2);
+				if (lastShootEnemyStand + 0.3 <= gameTime)
+				{
+					sprite.setTextureRect(IntRect(0, 0, 38, 43));
+				}
+				else
+				{
+					sprite.setTextureRect(IntRect(38, 0, 38, 43));
+				}
 			}
+
+			x += dx * time;
+			y += dy * time;
+
+			sprite.setPosition(x, y);
 		}
-		
-		x += dx * time;
-		y += dy * time;
-
-
-		sprite.setPosition(x, y);
 	}
 	
 }enemies[10];

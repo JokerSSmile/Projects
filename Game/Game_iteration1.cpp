@@ -1,19 +1,65 @@
 #include <SFML/Graphics.hpp>
 #include <iostream>
+#include "collision.h"
 #include "constants.h"
 #include "map.h"
 #include "view.h"
 #include "player.h"
 #include "enemy.h"
-#include "doors.h"
-
-
-#include "stdafx.h"
-#include <string>
 
 
 using namespace sf;
 using namespace std;
+
+
+int initializeLevel(Player & player)
+{
+	if (player.x > 0 && player.x < WINDOW_WIDTH)
+	{
+		if (player.y > 0 && player.y < WINDOW_HEIGHT)
+		{
+			return 1;
+		}
+		else if (player.y > WINDOW_HEIGHT && player.y < WINDOW_HEIGHT * 2)
+		{
+			return 4;
+		}
+		else if (player.y > WINDOW_HEIGHT * 2 && player.y < WINDOW_HEIGHT * 3)
+		{
+			return 7;
+		}
+	}
+	else if (player.x > WINDOW_WIDTH && player.x < WINDOW_WIDTH * 2)
+	{
+		if (player.y > 0 && player.y < WINDOW_HEIGHT)
+		{
+			return 2;
+		}
+		else if (player.y > WINDOW_HEIGHT && player.y < WINDOW_HEIGHT * 2)
+		{
+			return 5;
+		}
+		else if (player.y > WINDOW_HEIGHT * 2 && player.y < WINDOW_HEIGHT * 3)
+		{
+			return 8;
+		}
+	}
+	else if (player.x > WINDOW_WIDTH * 2 && player.x < WINDOW_WIDTH * 3)
+	{
+		if (player.y > 0 && player.y < WINDOW_HEIGHT)
+		{
+			return 3;
+		}
+		else if (player.y > WINDOW_HEIGHT && player.y < WINDOW_HEIGHT * 2)
+		{
+			return 6;
+		}
+		else if (player.y > WINDOW_HEIGHT * 2 && player.y < WINDOW_HEIGHT * 3)
+		{
+			return 9;
+		}
+	}
+}
 
 //draw health bar
 void DrawHealth(float health, RenderWindow & window, View & view)
@@ -31,59 +77,30 @@ void DrawHealth(float health, RenderWindow & window, View & view)
 	halfHP.setTextureRect(IntRect(16, 0, 16, 16));
 	halfHP.setScale(2, 2);
 
-	for (i = 1; i <= health; i += 1)
+	if (health > 0)
 	{
-		fullHP.setPosition(view.getCenter().x - WINDOW_WIDTH/2 + i * 35, view.getCenter().y - WINDOW_HEIGHT/2 + 10);
-		window.draw(fullHP);
-	}
-	if (health - int(health) != 0)
-	{
-		halfHP.setPosition(view.getCenter().x - WINDOW_WIDTH/2 + i * 35, view.getCenter().y - WINDOW_HEIGHT/2 + 10);
-		window.draw(halfHP);
+		for (i = 1; i <= health; i += 1)
+		{
+			fullHP.setPosition(view.getCenter().x - WINDOW_WIDTH / 2 + i * 35, view.getCenter().y - WINDOW_HEIGHT / 2 + 10);
+			window.draw(fullHP);
+		}
+		if (health - int(health) != 0)
+		{
+			halfHP.setPosition(view.getCenter().x - WINDOW_WIDTH / 2 + i * 35, view.getCenter().y - WINDOW_HEIGHT / 2 + 10);
+			window.draw(halfHP);
+		}
 	}
 }
 
-//draw map
-void DrawMap(Sprite & doorSprite, Sprite & rockSprite, RenderWindow & window)
+void drawBackground(RenderWindow & window, Sprite & wallBackgroundSprite, Sprite & floorBackgroundSprite)
 {
-	for (int i = 0; i < HEIGHT_MAP; i++)
-		for (int j = 0; j < WIDTH_MAP; j++)
-		{
-			if (tileMap[i][j] == 's')
-			{
-				rockSprite.setTextureRect(IntRect(0, 0, TILE_SIDE, TILE_SIDE));
-				rockSprite.setPosition(j * TILE_SIDE, i * TILE_SIDE);
-				window.draw(rockSprite);
-			}
-			else if (tileMap[i][j + 1] == 'u')
-			{
-				doorSprite.setTextureRect(IntRect(0, 0, TILE_SIDE, TILE_SIDE));
-				doorSprite.setPosition(j * TILE_SIDE + TILE_SIDE/2, i * TILE_SIDE - TILE_SIDE);
-				doorSprite.setRotation(0);
-				window.draw(doorSprite);
-			}
-			else if (tileMap[i][j + 1] == 'd')
-			{
-				doorSprite.setTextureRect(IntRect(0, 0, TILE_SIDE, TILE_SIDE));
-				doorSprite.setPosition(j * TILE_SIDE + 160, i * TILE_SIDE + 128);
-				doorSprite.setRotation(180);
-				window.draw(doorSprite);
-			}
-			else if (tileMap[i][j + 1] == 'r')
-			{
-				doorSprite.setTextureRect(IntRect(0, 0, TILE_SIDE, TILE_SIDE));
-				doorSprite.setPosition(j * TILE_SIDE + 192, i * TILE_SIDE);
-				doorSprite.setRotation(90);
-				window.draw(doorSprite);
-			}
-			else if (tileMap[i][j + 1] == 'l')
-			{
-				doorSprite.setTextureRect(IntRect(0, 0, TILE_SIDE, TILE_SIDE));
-				doorSprite.setPosition(j * TILE_SIDE, i * TILE_SIDE + TILE_SIDE * 2);
-				doorSprite.setRotation(270);
-				window.draw(doorSprite);
-			}
-		}
+	//background
+	wallBackgroundSprite.setOrigin(wallBackgroundSprite.getGlobalBounds().width / 2, wallBackgroundSprite.getGlobalBounds().height / 2);
+	wallBackgroundSprite.setPosition(view.getCenter().x, view.getCenter().y);
+	floorBackgroundSprite.setOrigin(floorBackgroundSprite.getGlobalBounds().width / 2, floorBackgroundSprite.getGlobalBounds().height / 2);
+	floorBackgroundSprite.setPosition(view.getCenter().x, view.getCenter().y);
+	window.draw(wallBackgroundSprite);
+	window.draw(floorBackgroundSprite);
 }
 
 int main()
@@ -91,34 +108,27 @@ int main()
 	//players last shoot time
 	float lastShootPlayer = 0;
 
-	//rock
-	Image rockImage;
-	rockImage.loadFromFile("images/Rock.png");
-	Texture rockTexture;
-	rockTexture.loadFromImage(rockImage);
-	Sprite rockSprite;
-	rockSprite.setTexture(rockTexture);
-	
-	//door
-	Image doorImage;
-	doorImage.loadFromFile("images/Door.png");
-	Texture doorTexture;
-	doorTexture.loadFromImage(doorImage);
-	Sprite doorSprite;
-	doorSprite.setTexture(doorTexture);
-	doorSprite.setScale(2, 2);
+	tileMap mapa;
 
-	//background
-	Image mapBackground;
-	mapBackground.loadFromFile("images/bigMap.png");
-	Texture mapBackgroundTexture;
-	mapBackgroundTexture.loadFromImage(mapBackground);
-	Sprite mapBackgroundSprite;
-	mapBackgroundSprite.setTexture(mapBackgroundTexture);
+	//background wall
+	Image wallBackground;
+	wallBackground.loadFromFile("images/walls.png");
+	Texture wallBackgroundTexture;
+	wallBackgroundTexture.loadFromImage(wallBackground);
+	Sprite wallBackgroundSprite;
+	wallBackgroundSprite.setTexture(wallBackgroundTexture);
+
+	//background floor
+	Image floorBackground;
+	floorBackground.loadFromFile("images/floor.png");
+	Texture floorBackgroundTexture;
+	floorBackgroundTexture.loadFromImage(floorBackground);
+	Sprite floorBackgroundSprite;
+	floorBackgroundSprite.setTexture(floorBackgroundTexture);
 
 	//hero
 	Image heroImage;
-	heroImage.loadFromFile("images/charaset.png");
+	heroImage.loadFromFile("images/body_1.png");
 
 	//enemy image
 	Image enemyImage;
@@ -127,15 +137,23 @@ int main()
 	//standAndShoot
 	Image standAndShootImage;
 	standAndShootImage.loadFromFile("images/StandAndShoot.png");
+
+	//bullets
+	Texture bulletTexturePlayer;
+	Texture bulletTextureEnemy;
+	bulletTexturePlayer.loadFromFile("images/bullet.png");
+	bulletTextureEnemy.loadFromFile("images/enemybullets.png");
 	
 	//mass of enemies
 	Enemy enemies[10] = 
 	{
-		{enemyImage, FLY1_POSITION_X, FLY1_POSITION_Y, FLY_WIDTH, FLY_HEIGHT, "EnemyFly", 1},
-		{enemyImage, FLY2_POSITION_X, FLY2_POSITION_Y, FLY_WIDTH, FLY_HEIGHT, "EnemyFly", 1},
-		{standAndShootImage, 1400, 200, 38, 43, "StandAndShoot", 3}
+		{enemyImage, FLY1_POSITION_X, FLY1_POSITION_Y, FLY_WIDTH, FLY_HEIGHT, "EnemyFly", 1, 1},
+		{enemyImage, FLY2_POSITION_X, FLY2_POSITION_Y, FLY_WIDTH, FLY_HEIGHT, "EnemyFly", 1, 1},
+		{standAndShootImage, 1400, 400, 38, 43, "EnemyStandAndShoot", 3, 2},
+		{ standAndShootImage, 1500, 400, 38, 43, "EnemyStandAndShoot", 3, 2 },
+		//{ standAndShootImage, 1300, 400, 38, 43, "EnemyStandAndShoot", 3, 2 }
 	};
-
+	
 	//sozdanie igroka
 	Player p(heroImage, PLAYER_POSITION_X, PLAYER_POSITION_Y, PLAYER_WIDTH, PLAYER_HEIGHT, "Hero", 6);
 
@@ -155,8 +173,13 @@ int main()
 	//game time
 	float gameTime;
 
+	//level
+	int level = 1;
+
 	while (window.isOpen())
 	{
+		level = initializeLevel(p);
+
 		//time
 		float time = clock.getElapsedTime().asMicroseconds();
 		clock.restart();
@@ -176,34 +199,34 @@ int main()
 				window.close();
 		}
 		
-		//player update
-		p.update(time, gameTime, lastShootPlayer);
+		
+			//player update
+		//p.Update(time, gameTime, lastShootPlayer, wallBackgroundSprite, view);
+		p.Update(time, gameTime, lastShootPlayer, wallBackgroundSprite, view);
+
+
+
 		
 		//enemy update
 		for (int i = 0; i < size(enemies); i++)
 		{
 			if (enemies[i].health > 0)
 			{
-				enemies[i].update(time, gameTime, window);
+				enemies[i].Update(time, gameTime, window, level);
 			}
 		}
+		
 
+		
 		//view
 		window.setView(view);
 
 		//clear screen
 		window.clear();
 
-		//background
-		mapBackgroundSprite.setOrigin(mapBackgroundSprite.getGlobalBounds().width / 2, mapBackgroundSprite.getGlobalBounds().height / 2);
-		mapBackgroundSprite.setPosition(view.getCenter().x, view.getCenter().y);
-		window.draw(mapBackgroundSprite);
-
-		//drawing map
-		DrawMap(doorSprite, rockSprite, window);
 		
-		//check colisions with player
-		for (int i = 0; i < 2; i++)
+		//check colisions enemies with player
+		for (int i = 0; i < size(enemies); i++)
 		{
 			if (p.sprite.getGlobalBounds().contains(enemies[i].x + (enemies[i].sprite.getGlobalBounds().width / 2), enemies[i].y + (enemies[i].sprite.getGlobalBounds().height / 2)))
 			{
@@ -214,26 +237,31 @@ int main()
 				}
 			}
 		}
+		
+
+		drawBackground(window, wallBackgroundSprite, floorBackgroundSprite);
 
 		//HP bar
 		DrawHealth(p.health, window, view);
 		
-		//while HP > 0 draw  
-		if (p.health > 0)
-		{
-			window.draw(p.sprite);
-		}
+		
 		for (int i = 0; i < size(enemies); i++)
 		{
 			if (enemies[i].health > 0)
-				window.draw(enemies[i].sprite);
+			{
+				if (enemies[i].level == level)
+				{
+					window.draw(enemies[i].sprite);
+				}
+			}
 			else
 			{
 				enemies[i].x = 0;
 				enemies[i].y = 0;
 			}
 		}
-
+		
+		
 		//going through bullets mass and delete/update it. Check collisions with player, enemies
 		for (int i = 0; i < size(bullets); i++)
 		{
@@ -245,7 +273,7 @@ int main()
 					{
 						if (bullets[i].isPlayers == true)
 						{
-							if (enemies[k].sprite.getGlobalBounds().contains(bullets[i].x + bullets[i].w / 2, bullets[i].y + bullets[i].h / 2))
+							if (enemies[k].sprite.getGlobalBounds().contains(bullets[i].x + BULLET_SIDE / 2, bullets[i].y + BULLET_SIDE / 2))
 							{
 								bullets[i].life = false;
 								enemies[k].health -= 0.5;
@@ -255,21 +283,27 @@ int main()
 				}
 				if (bullets[i].isPlayers == false)
 				{
-					if (p.sprite.getGlobalBounds().contains(bullets[i].x + bullets[i].w / 2, bullets[i].y + bullets[i].h / 2))
+					if (p.sprite.getGlobalBounds().contains(bullets[i].x + BULLET_SIDE / 2, bullets[i].y + BULLET_SIDE / 2))
 					{
 						bullets[i].life = false;
 						bullets[i].isPlayers = false;
 						p.health -= 0.5;
 					}
 				}
-				bullets[i].deleteBullet(gameTime);
-				bullets[i].update(time, window, gameTime);
+				bullets[i].DeleteBullet(gameTime);
+				bullets[i].Update(time, window, gameTime, bulletTexturePlayer, bulletTextureEnemy);
 			}
 		}
 
+		
+		//while HP > 0 draw  
+		if (p.health > 0)
+		{
+			window.draw(p.sprite);
+		}
+		
+		mapa.drawMap(window);
 
-		//enemies[2].sprite.setPosition(enemies[2].x, enemies[2].y);
-		//window.draw(enemies[2].sprite);
 
 		//display screen
 		window.display();

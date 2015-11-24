@@ -4,7 +4,9 @@ const float PLAYER_POSITION_Y = 200;
 const int PLAYER_WIDTH = 36;
 const int PLAYER_HEIGHT = 26;
 
-//fly enemy
+//enemies
+const int SIZE_ENEMIES = 10;
+
 const float FLY1_POSITION_X = 350;
 const float FLY1_POSITION_Y = 200;
 const float FLY2_POSITION_X = 250;
@@ -13,8 +15,10 @@ const int FLY_WIDTH = 57;
 const int FLY_HEIGHT = 45;
 
 //map
+const int SIZE_MAP_STRUCT = 50;
+
 const int HEIGHT_MAP = 20;//размер карты высота
-const int WIDTH_MAP = 30;//размер карты ширина 
+const int WIDTH_MAP = 45;//размер карты ширина 
 
 //window
 const int WINDOW_WIDTH = 960;

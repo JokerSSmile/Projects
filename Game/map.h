@@ -7,26 +7,26 @@ using namespace std;
 
 
 sf::String mapString[WIDTH_MAP] = {
-	"000000000000000000000000000000",
-	"000000000000000000000000000000",
-	"00           0000           00",
-	"00           0000           00",
-	"00           r00l           00",
-	"00   sssss   0000   sssss   00",
-	"00           0000           00",
-	"00           0000           00",
-	"0000000d00000000000000d0000000",
-	"000000000000000000000000000000",
-	"000000000000000000000000000000",
-	"0000000u00000000000000u0000000",
-	"00           0000           00",
-	"00           0000  s     s  00",
-	"00           r00l           00",
-	"00           0000           00",
-	"00           0000  s     s  00",
-	"00           0000           00",
-	"000000000000000000000000000000",
-	"000000000000000000000000000000",
+	"000000000000000000000000000000000000000000000",
+	"000000000000000000000000000000000000000000000",
+	"00           0000           0000           00",
+	"00     sss   0000           0000 ss     ss 00",
+	"00           r00l           r00l           00",
+	"00           0000           0000 s       s 00",
+	"00           0000           0000 s       s 00",
+	"00           0000           0000           00",
+	"0000000d00000000000000d00000000000000d0000000",
+	"000000000000000000000000000000000000000000000",
+	"000000000000000000000000000000000000000000000",
+	"0000000u00000000000000u00000000000000u0000000",
+	"00           0000           0000           00",
+	"00   s       0000  s     s  0000           00",
+	"00           r00l           r00l           00",
+	"00           0000           0000     sss   00",
+	"00           0000  s     s  0000           00",
+	"00           0000           0000           00",
+	"000000000000000000000000000000000000000000000",
+	"000000000000000000000000000000000000000000000",
 };
 
 
@@ -44,12 +44,13 @@ struct
 	Sprite sprite;
 	DoorPosition pos;
 	String TileMap;
-}mapStruct[100];
+}mapStruct[SIZE_MAP_STRUCT];
 
 struct tileMap
 {
+private:
+	bool isMapSpritesLoaded = false;
 public:
-	//String map[WIDTH_MAP] = mapString;
 	Image rockImage;
 	Texture rockTexture;
 	Sprite rockSprite;
@@ -57,20 +58,29 @@ public:
 	Texture doorTexture;
 	Sprite doorSprite;
 
-	void drawMap(RenderWindow & window)
+	void LoadMapSprites()
 	{
-		int counter = 0;
-
 		//rock
 		rockImage.loadFromFile("images/Rock1.png");
 		rockTexture.loadFromImage(rockImage);
 		rockSprite.setTexture(rockTexture);
-	
+
 		//door
 		doorImage.loadFromFile("images/Door.png");
 		doorTexture.loadFromImage(doorImage);
 		doorSprite.setTexture(doorTexture);
 		doorSprite.setScale(2, 2);
+	}
+
+	void drawMap(RenderWindow & window)
+	{
+		if (isMapSpritesLoaded == false)
+		{
+			LoadMapSprites();
+			isMapSpritesLoaded = true;
+		}
+
+		int counter = 0;
 
 		for (int i = 0; i < HEIGHT_MAP; i++)
 		{
@@ -123,13 +133,11 @@ public:
 
 	void drawTiles(RenderWindow & window)
 	{
-		for (int i = 0; i < size(mapStruct); i++)
+		for (int i = 0; i < SIZE_MAP_STRUCT; i++)
 		{
-			//cout << i << endl;
 			if (mapStruct[i].pos == 0)
 			{
 				mapStruct[i].sprite.setPosition(mapStruct[i].x, mapStruct[i].y);
-				//window.draw(mapStruct[i].sprite);
 			}
 			else
 			{
@@ -155,7 +163,6 @@ public:
 				}
 			}
 			window.draw(mapStruct[i].sprite);
-
 		}
 	}
 };

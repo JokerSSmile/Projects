@@ -6,7 +6,7 @@ using namespace std;
 
 const int TIME_BETWEEN_SHOOT_ENEMY_STAND = 1;
 
-struct Enemy:
+struct Enemies:
 	public Character
 {
 private:
@@ -19,8 +19,9 @@ private:
 public:
 	int level = 0;
 	float lastShootEnemyStand = 0;
-	Enemy() {};
-	Enemy(Image & image, float X, float Y, int W, int H, String Name, float Health, int Level) :Character(image, X, Y, w, h, Name, health)
+	float damage = 0.5;
+	Enemies() {};
+	Enemies(Image & image, float X, float Y, int W, int H, String Name, float Health, int Level) :Character(image, X, Y, w, h, Name, health)
 	{
 		w = W;
 		h = H;
@@ -30,7 +31,7 @@ public:
 		level = Level;
 		if (name == "EnemyFly")
 		{
-			dy = -0.1;
+			dx = -0.1;
 		}
 		else if (name == "EnemyStandAndShoot")
 		{
@@ -123,7 +124,7 @@ public:
 
 	void Shoot(float gameTime, int dir, int bulletStartX, int bulletStartY)
 	{
-		for (int i = 0; i <= size(bullets); i++)
+		for (int i = 0; i <= SIZE_BULLETS; i++)
 		{
 			if (bullets[i].life == false)
 			{
@@ -134,6 +135,7 @@ public:
 				bullets[i].timeShot = gameTime;
 				bullets[i].direction = dir;
 				bullets[i].speed = 0.2;
+				bullets[i].damage = damage;
 				lastShootEnemyStand = bullets[i].timeShot;
 				break;
 			}
@@ -180,4 +182,4 @@ public:
 		}
 	}
 	
-}enemies[10];
+}enemies[SIZE_ENEMIES];

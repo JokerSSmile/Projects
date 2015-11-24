@@ -4,7 +4,7 @@
 const int SIZE_BULLETS = 50;
 const float LIFE_TIME = 1;
 
-struct
+struct Bullets
 {
 private:
 	float dy;
@@ -18,6 +18,7 @@ public:
 	Sprite bulletSprite;
 	bool isPlayers = false;
 	float speed;
+	float damage = 0;
 
 	void CheckCollision()
 	{
@@ -50,21 +51,19 @@ public:
 	}
 
 
-	void Update(float time, RenderWindow & window, float gameTime, Texture & bulletTexturePlayer, Texture & bulletTextureEnemy)
+	void Update(float time, RenderWindow & window, float gameTime, Texture & bulletTexture)
 	{
 		if (life == true)
 		{
+			bulletSprite.setTexture(bulletTexture);
 			if (isPlayers == true)
 			{
-				bulletSprite.setTexture(bulletTexturePlayer);
-				bulletSprite.setTextureRect(IntRect(96, 32, BULLET_SIDE, BULLET_SIDE));
+				bulletSprite.setTextureRect(IntRect(96, 96, BULLET_SIDE, BULLET_SIDE));
 			}
 			else
 			{
-				bulletSprite.setTexture(bulletTextureEnemy);
 				bulletSprite.setTextureRect(IntRect(96, 32, BULLET_SIDE, BULLET_SIDE));
 			}
-
 
 			switch (direction)
 			{

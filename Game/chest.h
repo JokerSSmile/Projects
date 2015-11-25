@@ -10,62 +10,77 @@ struct Chest
 {
 private:
 	Texture chestTexture;
-	Sprite chestSpriteOpened;
-	Sprite chestSpriteClosed;
-	bool isLoadedTexture = false;
 public:
+	int level;
 	float x;
 	float y;
+	int h;
+	int w;
+	Sprite chestSpriteOpened;
+	Sprite chestSpriteClosed;
 	bool isOpened = false;
+	int present;
+	enum 
+	{
+		IncreaseSpeed, IncreaseDamage, Health, Bomb
+	} filling;
 	Chest() {};
-	Chest(float X, float Y)
+	Chest(float X, float Y, int Level)
 	{
 		x = X;
 		y = Y;
-	}
-	enum
-	{
-		IncreaseSpeed, IncreaseDamage, IncreaseHealth, Bomb
-	} filling;
-
-	void LoadTexture(Chest* chest)
-	{
 		chestTexture.loadFromFile("images/chest.png");
-		chestSpriteOpened.setTextureRect(IntRect(32, 0, 32, 32));
-		chestSpriteClosed.setTextureRect(IntRect(0, 0, 32, 32));
+		chestSpriteOpened.setTextureRect(IntRect(64, 0, 64, 64));
+		chestSpriteClosed.setTextureRect(IntRect(0, 0, 64, 64));
+		h = chestSpriteClosed.getGlobalBounds().height;
+		w = chestSpriteClosed.getGlobalBounds().width;
+		level = Level;
 	}
 
-	void SetFilling(Chest* chest)
+	/*
+	void SetFilling()
 	{
-		srand(time(0));
+		srand(time(0)*100);
 		int random = 1 + rand() % 3;
 		switch (filling)
 		{
 		case 0: filling = IncreaseSpeed; break;
 		case 1: filling = IncreaseDamage; break;
-		case 2: filling = IncreaseHealth; break;
+		case 2: filling = Health; break;
 		case 3: filling = Bomb; break;
 		}
 	}
+	*/
 
-	void Update(Chest* chest, RenderWindow& window)
+	int SetFilling()
 	{
-		if (&isLoadedTexture == false)
+		srand(time(0) * 100);
+		int random = (1 + rand() % 3);
+
+	}
+
+	void CheckOpening(Player& p)
+	{
+		if (Collision::PixelPerfectTest(p.sprite, chestSpriteClosed))
 		{
-			cout << "loaded" << endl;
-			LoadTexture(chest);
-			isLoadedTexture = true;
+			isOpened = true;
 		}
-		SetFilling(chest);
-		chestSpriteClosed.setPosition(x, y);
-		chestSpriteOpened.setPosition(x, y);
+	}
+
+	void Update(RenderWindow& window, Player& p)
+	{
+		chestSpriteOpened.setTexture(chestTexture);
+		chestSpriteClosed.setTexture(chestTexture);
 		if (isOpened == false)
 		{
-			//cout << "124124" << endl;
+			chestSpriteClosed.setPosition(x - w / 2, y - h / 2);
+			CheckOpening(p);
 			window.draw(chestSpriteClosed);
 		}
 		else
 		{
+			
+			chestSpriteOpened.setPosition(x - w / 2, y - h / 2);
 			window.draw(chestSpriteOpened);
 		}
 	}

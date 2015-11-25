@@ -1,5 +1,6 @@
 #include <SFML/Graphics.hpp>
 #include <iostream>
+#include <list>
 #include "collision.h"
 #include "constants.h"
 #include "map.h"
@@ -155,7 +156,7 @@ void CheckBulletsCollisionWithEntities(Player& p, Enemies enemies[SIZE_ENEMIES],
 	}
 }
 
-void DrawEnemies(RenderWindow& window, int level, Enemies enemies[SIZE_ENEMIES])
+void DrawEnemies(RenderWindow& window, int& level, Enemies enemies[SIZE_ENEMIES])
 {
 	for (int i = 0; i < SIZE_ENEMIES; i++)
 	{
@@ -183,7 +184,7 @@ void DrawPlayer(Player& p, RenderWindow& window)
 	}
 }
 
-void UpdateEnemies(Enemies enemies[SIZE_ENEMIES], float time, float gameTime, RenderWindow& window, int level)
+void UpdateEnemies(Enemies enemies[SIZE_ENEMIES], float& time, float& gameTime, RenderWindow& window, int& level)
 {
 	//enemy update
 	for (int i = 0; i < SIZE_ENEMIES; i++)
@@ -195,7 +196,7 @@ void UpdateEnemies(Enemies enemies[SIZE_ENEMIES], float time, float gameTime, Re
 	}
 }
 
-bool CheckIsLevelCleared(int level, Enemies enemies[SIZE_ENEMIES])
+bool IsLevelCleared(int& level, Enemies enemies[SIZE_ENEMIES])
 {
 	bool isAllDead = true;
 
@@ -208,9 +209,59 @@ bool CheckIsLevelCleared(int level, Enemies enemies[SIZE_ENEMIES])
 				isAllDead = false;
 			}
 		}
-		//cout << isAllDead << endl;
 	}
 	return isAllDead;
+}
+
+bool IsRoomEmpty(int& level, Enemies enemies[SIZE_ENEMIES])
+{
+	bool isEmpty = true;
+
+	for (int i = 0; i < SIZE_ENEMIES; i++)
+	{
+		if (enemies[i].level == level)
+		{
+			isEmpty = false;
+		}
+	}
+	return isEmpty;
+}
+
+bool IsChestInRoom(vector<Chest> chests, int& level)
+{
+	if (size(chests) == 0)
+	{
+		return false;
+	}
+	bool isChestInRoom = false;
+	for (vector<Chest>::iterator chest = chests.begin(); chest != chests.end(); ++chest)
+	{
+		if (level == chest->level)
+		{
+			isChestInRoom = true;
+		}
+	}
+	return isChestInRoom;
+}
+
+void AddChest(int& level, vector<Chest>& chests, Enemies enemies[SIZE_ENEMIES])
+{
+	if (IsLevelCleared(level, enemies) && !IsRoomEmpty(level, enemies))
+	{
+		if (IsChestInRoom(chests, level) == false)
+		{
+			chests.push_back(Chest(view.getCenter().x, view.getCenter().y, level));
+		}
+	}
+}
+
+void UpdateChests(vector<Chest>& chests, RenderWindow& window, Player& p)
+{
+	for (vector<Chest>::iterator chest = chests.begin(); chest != chests.end(); ++chest)
+	{
+		chest->Update(window, p);
+		cout << chest->filling << endl;
+	}
 }
 
 int main()
@@ -266,6 +317,8 @@ int main()
 	//create player
 	Player p(heroImage, PLAYER_POSITION_X, PLAYER_POSITION_Y, PLAYER_WIDTH, PLAYER_HEIGHT, "Hero", 6);
 
+	vector<Chest> chests;
+
 	RenderWindow window(VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), "Game");
 
 	view.reset(FloatRect(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT));
@@ -280,7 +333,7 @@ int main()
 	//game time
 	float gameTime;
 
-	//level
+	//current level
 	int level = 1;
 
 	while (window.isOpen())
@@ -312,10 +365,12 @@ int main()
 		
 		UpdateEnemies(enemies, time, gameTime, window, level);
 
+		AddChest(level, chests, enemies);
+
 		//view
 		window.setView(view);
 
-		//clear screen
+		/////////////////////////////
 		window.clear();
 		
 		CheckEnemyCollidesPlayer(gameTime, hitTimer, p, enemies);
@@ -326,19 +381,16 @@ int main()
 		
 		DrawEnemies(window, level, enemies);
 		
-		CheckBulletsCollisionWithEntities(p, enemies, gameTime, bullets, time, window, bulletTexture);
-		
-		DrawPlayer(p, window);
-		
 		myMap.drawMap(window);
 
-		if (CheckIsLevelCleared(level, enemies))
-		{
-			Chest *chest = new Chest;
-			chest->Update(chest, window);
-		}
+		UpdateChests(chests, window, p);
+
+		CheckBulletsCollisionWithEntities(p, enemies, gameTime, bullets, time, window, bulletTexture);
+
+		DrawPlayer(p, window);
 
 		window.display();
+		/////////////////////////////
 	}
 	return 0;
 }

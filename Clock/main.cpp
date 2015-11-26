@@ -1,6 +1,7 @@
 #include <SFML/Graphics.hpp>
-#include "Clock.h";
+#include "Clock.h"
 #include <windows.h>
+#include <ctime>
 
 using namespace sf;
 using namespace std;
@@ -17,9 +18,9 @@ void ProcessEvents(RenderWindow& window)
 
 void UpdateClock(AnalogClock& myClock, SYSTEMTIME& currentTime)
 {
-	myClock.hourHand->setRotation((currentTime.wHour + 3) * 30);
-	myClock.minuteHand->setRotation(currentTime.wMinute * 6);
-	myClock.secondHand->setRotation(currentTime.wSecond * 6);
+	myClock.hourHand->setRotation(float((currentTime.wHour + 3) * 30));
+	myClock.minuteHand->setRotation(float(currentTime.wMinute * 6));
+	myClock.secondHand->setRotation(float(currentTime.wSecond * 6));
 }
 
 void RenderClock(AnalogClock& myClock, RenderWindow& window)
@@ -47,6 +48,7 @@ int main()
 		ProcessEvents(window);
 		UpdateClock(*myClock, currentTime);
 		RenderClock(*myClock, window);
+
 	}
 	DeleteClock(*myClock);
 	return 0;

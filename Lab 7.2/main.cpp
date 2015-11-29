@@ -36,7 +36,7 @@ void InitializeProgram(vector<Block>& blocks)
 	}
 }
 
-void FirstStep(vector<Block>& blocks, int& animationStep)
+bool FirstStep(vector<Block>& blocks)
 {
 	for (int i = 0; i < BLOCKS_COUNT; i++)
 	{
@@ -47,12 +47,12 @@ void FirstStep(vector<Block>& blocks, int& animationStep)
 		}
 		else
 		{
-			animationStep = 2;
+			return true;
 		}
 	}
 }
 
-void SecondStep(vector<Block>& blocks, int& animationStep)
+bool SecondStep(vector<Block>& blocks)
 {
 	for (int i = 0; i < BLOCKS_COUNT; i++)
 	{
@@ -64,12 +64,12 @@ void SecondStep(vector<Block>& blocks, int& animationStep)
 		}
 		else if (blocks[0].figure.getPosition().y == blocks[BLOCKS_COUNT - 1].figure.getPosition().y)
 		{
-			animationStep = 3;
+			return true;
 		}
 	}
 }
 
-void ThirdStep(vector<Block>& blocks, int& animationStep)
+bool ThirdStep(vector<Block>& blocks)
 {
 	for (int i = 0; i < BLOCKS_COUNT; i++)
 	{
@@ -80,12 +80,12 @@ void ThirdStep(vector<Block>& blocks, int& animationStep)
 		}
 		else
 		{
-			animationStep = 4;
+			return true;
 		}
 	}
 }
 
-void ForthStep(vector<Block>& blocks, int& animationStep)
+bool ForthStep(vector<Block>& blocks)
 {
 	for (int i = 0; i < BLOCKS_COUNT; i++)
 	{
@@ -96,12 +96,12 @@ void ForthStep(vector<Block>& blocks, int& animationStep)
 		}
 		else if (blocks[BLOCKS_COUNT - 1].position.y == blocks[BLOCKS_COUNT - 1].startPosition.y)
 		{
-			animationStep = 5;
+			return true;
 		}
 	}
 }
 
-void FifthStep(vector<Block>& blocks, int& animationStep)
+bool FifthStep(vector<Block>& blocks)
 {
 	for (int i = 0; i < BLOCKS_COUNT; i++)
 	{
@@ -112,12 +112,12 @@ void FifthStep(vector<Block>& blocks, int& animationStep)
 		}
 		else if (blocks[BLOCKS_COUNT - 1].position.x == blocks[BLOCKS_COUNT - 1].startPosition.x)
 		{
-			animationStep = 6;
+			return true;
 		}
 	}
 }
 
-void SixthStep(vector<Block>& blocks, int& animationStep)
+bool SixthStep(vector<Block>& blocks)
 {
 	for (int i = 0; i < BLOCKS_COUNT; i++)
 	{
@@ -128,7 +128,7 @@ void SixthStep(vector<Block>& blocks, int& animationStep)
 		}
 		else
 		{
-			animationStep = 1;
+			return true;
 		}
 	}
 }
@@ -137,12 +137,42 @@ void Update(vector<Block>& blocks, int& animationStep)
 {
 	switch (animationStep)
 	{
-	case 1: FirstStep(blocks, animationStep); break;
-	case 2: SecondStep(blocks, animationStep); break;
-	case 3: ThirdStep(blocks, animationStep); break;
-	case 4: ForthStep(blocks, animationStep); break;
-	case 5: FifthStep(blocks, animationStep); break;
-	case 6: SixthStep(blocks, animationStep); break;
+	case 1:
+		if (FirstStep(blocks) == true)
+		{
+			animationStep += 1;
+		}
+		break;
+	case 2:
+		if (SecondStep(blocks) == true)
+		{
+			animationStep += 1;
+		}
+		break;
+	case 3:
+		if (ThirdStep(blocks) == true)
+		{
+			animationStep += 1;
+		}
+		break;
+	case 4:
+		if (ForthStep(blocks) == true)
+		{
+			animationStep += 1;
+		}
+		break;
+	case 5:
+		if (FifthStep(blocks) == true)
+		{
+			animationStep += 1;
+		}
+		break;
+	case 6:
+		if (SixthStep(blocks) == true)
+		{
+			animationStep = 1;
+		}
+		break;
 	}
 }
 
@@ -170,6 +200,7 @@ int main()
 			Update(blocks, animationStep);
 		}
 		DrawWindow(window, blocks);
+		cout << animationStep << endl;
 	}
 	return 0;
 }

@@ -260,12 +260,13 @@ void UpdateChests(vector<Chest>& chests, RenderWindow& window, Player& p)
 	for (vector<Chest>::iterator chest = chests.begin(); chest != chests.end(); ++chest)
 	{
 		chest->Update(window, p);
-		cout << chest->filling << endl;
+		//cout << chest->filling << endl;
 	}
 }
 
 int main()
 {
+
 	//players last shoot time
 	float lastShootPlayer = 0;
 

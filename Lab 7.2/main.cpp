@@ -133,38 +133,38 @@ bool SixthStep(vector<Block>& blocks)
 	}
 }
 
-void Update(vector<Block>& blocks, int& animationStep)
+void ChangeStep(vector<Block> blocks, int& animationStep)
 {
 	switch (animationStep)
 	{
 	case 1:
 		if (FirstStep(blocks) == true)
 		{
-			animationStep += 1;
+			animationStep = 2;
 		}
 		break;
 	case 2:
 		if (SecondStep(blocks) == true)
 		{
-			animationStep += 1;
+			animationStep = 3;
 		}
 		break;
 	case 3:
 		if (ThirdStep(blocks) == true)
 		{
-			animationStep += 1;
+			animationStep = 4;
 		}
 		break;
 	case 4:
 		if (ForthStep(blocks) == true)
 		{
-			animationStep += 1;
+			animationStep = 5;
 		}
 		break;
 	case 5:
 		if (FifthStep(blocks) == true)
 		{
-			animationStep += 1;
+			animationStep = 6;
 		}
 		break;
 	case 6:
@@ -172,6 +172,33 @@ void Update(vector<Block>& blocks, int& animationStep)
 		{
 			animationStep = 1;
 		}
+		break;
+	}
+}
+
+void Update(vector<Block>& blocks, int& animationStep)
+{
+	ChangeStep(blocks, animationStep);
+
+	switch (animationStep)
+	{
+	case 1:
+		FirstStep(blocks);
+		break;
+	case 2:
+		SecondStep(blocks);
+		break;
+	case 3:
+		ThirdStep(blocks);
+		break;
+	case 4:
+		ForthStep(blocks);
+		break;
+	case 5:
+		FifthStep(blocks);
+		break;
+	case 6:
+		SixthStep(blocks);
 		break;
 	}
 }
@@ -184,7 +211,7 @@ int main()
 	int animationStep = 1;
 
 	RenderWindow window(VideoMode(WINDOW_SIZE.x, WINDOW_SIZE.y), "Lab 7.2");
-	
+
 	InitializeProgram(blocks);
 
 	Clock clock;
@@ -200,7 +227,7 @@ int main()
 			Update(blocks, animationStep);
 		}
 		DrawWindow(window, blocks);
-		cout << animationStep << endl;
+		//cout << animationStep << endl;
 	}
 	return 0;
 }

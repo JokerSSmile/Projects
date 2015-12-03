@@ -3,10 +3,11 @@
 #include <string>
 #include "constants.h"
 #include "ai.h"
+#include "sprites.h"
 
 using namespace std;
 
-void DrawWindow(sf::RectangleShape, sf::RenderWindow & window)
+void DrawWindow(sf::RenderWindow & window)
 {
 	int posx = SPACE_BETWEEN_CELL;
 	int posy = SPACE_BETWEEN_CELL;
@@ -53,8 +54,9 @@ void DrawWindow(sf::RectangleShape, sf::RenderWindow & window)
 	window.draw(exitSprite);
 }
 
-void DrawMarksInCell(sf::RenderWindow& window, int field[FIELD_CELLS][FIELD_CELLS], sf::Sprite& crossSprite, sf::Sprite& roundSprite)
+void DrawMarksInCell(sf::RenderWindow& window, int field[FIELD_CELLS][FIELD_CELLS], Sprites& mySprites)
 {
+	mySprites.SetMarks();
 	for (int line = 0; line < FIELD_CELLS; line++)
 	{
 		for (int colomn = 0; colomn < FIELD_CELLS; colomn++)
@@ -62,14 +64,31 @@ void DrawMarksInCell(sf::RenderWindow& window, int field[FIELD_CELLS][FIELD_CELL
 			
 			if (field[line][colomn] == 1)
 			{
-				crossSprite.setPosition(colomn * CELL_SIZE_PLUS_SPACE + SPACE_BETWEEN_MARK_AND_CELL, line* CELL_SIZE_PLUS_SPACE + SPACE_BETWEEN_MARK_AND_CELL);
-				window.draw(crossSprite);
+				mySprites.crossSprite.setPosition(colomn * CELL_SIZE_PLUS_SPACE + SPACE_BETWEEN_MARK_AND_CELL, line* CELL_SIZE_PLUS_SPACE + SPACE_BETWEEN_MARK_AND_CELL);
+				window.draw(mySprites.crossSprite);
 			}
 			else if (field[line][colomn] == 2)
 			{
-				roundSprite.setPosition(colomn * CELL_SIZE_PLUS_SPACE + SPACE_BETWEEN_MARK_AND_CELL, line* CELL_SIZE_PLUS_SPACE + SPACE_BETWEEN_MARK_AND_CELL);
-				window.draw(roundSprite);
+				mySprites.roundSprite.setPosition(colomn * CELL_SIZE_PLUS_SPACE + SPACE_BETWEEN_MARK_AND_CELL, line* CELL_SIZE_PLUS_SPACE + SPACE_BETWEEN_MARK_AND_CELL);
+				window.draw(mySprites.roundSprite);
 			}
+		}
+	}
+}
+
+void FillCell(int line, int colomn, int field[FIELD_CELLS][FIELD_CELLS], bool& isPlayersTurn)
+{
+	if (field[line][colomn] == 0)
+	{
+		if (isPlayersTurn == false)
+		{
+			field[line][colomn] = 2;
+			isPlayersTurn = true;
+		}
+		else
+		{
+			field[line][colomn] = 1;
+			isPlayersTurn = false;
 		}
 	}
 }
@@ -98,6 +117,8 @@ int PutMarkInCell(sf::RenderWindow& window, bool& isPlayersTurn, int& turnCounte
 		}
 	}
 
+	
+
 	//заполняем массив при ходе
 	if (sf::Event::GainedFocus && sf::Event::MouseEntered)
 	{
@@ -107,157 +128,49 @@ int PutMarkInCell(sf::RenderWindow& window, bool& isPlayersTurn, int& turnCounte
 			{
 				if (SPACE_BETWEEN_CELL <= mouseY && mouseY <= CELL_SIZE_PLUS_SPACE)
 				{
-					if (field[0][0] == 0)
-					{
-						if (isPlayersTurn == false)
-						{
-							field[0][0] = 2;
-							isPlayersTurn = true;
-						}
-						else
-						{
-							field[0][0] = 1;
-							isPlayersTurn = false;
-						}
-					}
+					FillCell(FIRST_LINE, FIRST_COLOMN, field, isPlayersTurn);
 				}
 				else if (SECOND_CELL_POSITION_START <= mouseY && mouseY <= SECOND_CELL_POSITION_END)
 				{
-					if (field[1][0] == 0)
-					{
-						if (isPlayersTurn == false)
-						{
-							field[1][0] = 2;
-							isPlayersTurn = true;
-						}
-						else
-						{
-							field[1][0] = 1;
-							isPlayersTurn = false;
-						}
-					}
+					FillCell(SECOND_LINE, FIRST_COLOMN, field, isPlayersTurn);
 				}
 				else if (THIRD_CELL_POSITION_START <= mouseY && mouseY <= THIRD_CELL_POSITION_END)
 				{
-					if (field[2][0] == 0)
-					{
-						if (isPlayersTurn == false)
-						{
-							field[2][0] = 2;
-							isPlayersTurn = true;
-						}
-						else
-						{
-							field[2][0] = 1;
-							isPlayersTurn = false;
-						}
-					}
+					FillCell(THIRD_LINE, FIRST_COLOMN, field, isPlayersTurn);
 				}
 			}
 			else if (SECOND_CELL_POSITION_START <= mouseX && mouseX <= SECOND_CELL_POSITION_END)
 			{
 				if (SPACE_BETWEEN_CELL <= mouseY && mouseY <= CELL_SIZE_PLUS_SPACE)
 				{
-					if (field[0][1] == 0)
-					{
-						if (isPlayersTurn == false)
-						{
-							field[0][1] = 2;
-							isPlayersTurn = true;
-						}
-						else
-						{
-							field[0][1] = 1;
-							isPlayersTurn = false;
-						}
-					}
+					FillCell(FIRST_LINE, SECOND_COLOMN, field, isPlayersTurn);
 				}
 
 
 				else if (SECOND_CELL_POSITION_START <= mouseY && mouseY <= SECOND_CELL_POSITION_END)
 				{
-					if (field[1][1] == 0)
-					{
-						if (isPlayersTurn == false)
-						{
-							field[1][1] = 2;
-							isPlayersTurn = true;
-						}
-						else
-						{
-							field[1][1] = 1;
-							isPlayersTurn = false;
-						}
-					}
+					FillCell(SECOND_LINE, SECOND_COLOMN, field, isPlayersTurn);
 				}
 				else if (THIRD_CELL_POSITION_START <= mouseY && mouseY <= THIRD_CELL_POSITION_END)
 				{
-					if (field[2][1] == 0)
-					{
-						if (isPlayersTurn == false)
-						{
-							field[2][1] = 2;
-							isPlayersTurn = true;
-						}
-						else
-						{
-							field[2][1] = 1;
-							isPlayersTurn = false;
-						}
-					}
+					FillCell(THIRD_LINE, SECOND_COLOMN, field, isPlayersTurn);
 				}
 			}
 			else if (THIRD_CELL_POSITION_START <= mouseX && mouseX <= THIRD_CELL_POSITION_END)
 			{
 				if (SPACE_BETWEEN_CELL <= mouseY && mouseY <= CELL_SIZE_PLUS_SPACE)
 				{
-					if (field[0][2] == 0)
-					{
-						if (isPlayersTurn == false)
-						{
-							field[0][2] = 2;
-							isPlayersTurn = true;
-						}
-						else
-						{
-							field[0][2] = 1;
-							isPlayersTurn = false;
-						}
-					}
+					FillCell(FIRST_LINE, THIRD_COLOMN, field, isPlayersTurn);
 				}
 
 
 				else if (SECOND_CELL_POSITION_START <= mouseY && mouseY <= SECOND_CELL_POSITION_END)
 				{
-					if (field[1][2] == 0)
-					{
-						if (isPlayersTurn == false)
-						{
-							field[1][2] = 2;
-							isPlayersTurn = true;
-						}
-						else
-						{
-							field[1][2] = 1;
-							isPlayersTurn = false;
-						}
-					}
+					FillCell(SECOND_LINE, THIRD_COLOMN, field, isPlayersTurn);
 				}
 				else if (THIRD_CELL_POSITION_START <= mouseY && mouseY <= THIRD_CELL_POSITION_END)
 				{
-					if (field[2][2] == 0)
-					{
-						if (isPlayersTurn == false)
-						{
-							field[2][2] = 2;
-							isPlayersTurn = true;
-						}
-						else
-						{
-							field[2][2] = 1;
-							isPlayersTurn = false;
-						}
-					}
+					FillCell(THIRD_LINE, THIRD_COLOMN, field, isPlayersTurn);
 				}
 			}
 		}
@@ -277,6 +190,109 @@ void DrawOWinSprite(sf::Sprite& oWinSprite, sf::RenderWindow& window)
 	window.draw(oWinSprite);
 }
 
+int CheckCrossWin(int field[FIELD_CELLS][FIELD_CELLS], sf::RenderWindow& window)
+{
+	//xwin
+	sf::Texture xWinTexture;
+	xWinTexture.loadFromFile("image/xwins.png");
+	sf::Sprite xWinSprite;
+	xWinSprite.setTexture(xWinTexture);
+
+	//check cross win
+	if ((field[FIRST_LINE][FIRST_COLOMN] == field[SECOND_LINE][FIRST_COLOMN]) && (field[SECOND_LINE][FIRST_COLOMN] == field[THIRD_LINE][FIRST_COLOMN]) && (field[FIRST_LINE][FIRST_COLOMN] == 1))
+	{
+		DrawXWinSprite(xWinSprite, window);
+		return 1;
+	}
+	else if ((field[FIRST_LINE][FIRST_COLOMN] == field[FIRST_LINE][SECOND_COLOMN]) && (field[FIRST_LINE][SECOND_COLOMN] == field[FIRST_LINE][THIRD_COLOMN]) && (field[FIRST_LINE][FIRST_COLOMN] == 1))
+	{
+		DrawXWinSprite(xWinSprite, window);
+		return 1;
+	}
+	else if ((field[SECOND_LINE][FIRST_COLOMN] == field[SECOND_LINE][SECOND_COLOMN]) && (field[SECOND_LINE][SECOND_COLOMN] == field[SECOND_LINE][THIRD_COLOMN]) && (field[SECOND_LINE][FIRST_COLOMN] == 1))
+	{
+		DrawXWinSprite(xWinSprite, window);
+		return 1;
+	}
+	else if ((field[FIRST_LINE][SECOND_COLOMN] == field[SECOND_LINE][SECOND_COLOMN]) && (field[SECOND_LINE][SECOND_COLOMN] == field[THIRD_LINE][SECOND_COLOMN]) && (field[FIRST_LINE][SECOND_COLOMN] == 1))
+	{
+		DrawXWinSprite(xWinSprite, window);
+		return 1;
+	}
+	else if (field[THIRD_LINE][FIRST_COLOMN] == field[THIRD_LINE][SECOND_COLOMN] && field[THIRD_LINE][SECOND_COLOMN] == field[THIRD_LINE][THIRD_COLOMN] && field[THIRD_LINE][FIRST_COLOMN] == 1)
+	{
+		DrawXWinSprite(xWinSprite, window);
+		return 1;
+	}
+	else if (field[FIRST_LINE][THIRD_COLOMN] == field[SECOND_LINE][THIRD_COLOMN] && field[SECOND_LINE][THIRD_COLOMN] == field[THIRD_LINE][THIRD_COLOMN] && field[FIRST_LINE][THIRD_COLOMN] == 1)
+	{
+		DrawXWinSprite(xWinSprite, window);
+		return 1;
+
+	}
+	else if (field[FIRST_LINE][FIRST_COLOMN] == field[SECOND_LINE][SECOND_COLOMN] && field[SECOND_LINE][SECOND_COLOMN] == field[THIRD_LINE][THIRD_COLOMN] && field[FIRST_LINE][FIRST_COLOMN] == 1)
+	{
+		DrawXWinSprite(xWinSprite, window);
+		return 1;
+	}
+	else if (field[THIRD_LINE][FIRST_COLOMN] == field[SECOND_LINE][SECOND_COLOMN] && field[SECOND_LINE][SECOND_COLOMN] == field[FIRST_LINE][THIRD_COLOMN] && field[THIRD_LINE][FIRST_COLOMN] == 1)
+	{
+		DrawXWinSprite(xWinSprite, window);
+		return 1;
+	}
+}
+
+int CheckRoundWin(int field[FIELD_CELLS][FIELD_CELLS], sf::RenderWindow& window)
+{
+	//owin
+	sf::Texture oWinTexture;
+	oWinTexture.loadFromFile("image/owins.png");
+	sf::Sprite oWinSprite;
+	oWinSprite.setTexture(oWinTexture);
+
+	//check round win
+	if ((field[FIRST_LINE][FIRST_COLOMN] == field[SECOND_LINE][FIRST_COLOMN]) && (field[SECOND_LINE][FIRST_COLOMN] == field[THIRD_LINE][FIRST_COLOMN]) && (field[FIRST_LINE][FIRST_COLOMN] == 2))
+	{
+		DrawOWinSprite(oWinSprite, window);
+		return 1;
+	}
+	else if ((field[FIRST_LINE][FIRST_COLOMN] == field[FIRST_LINE][SECOND_COLOMN]) && (field[FIRST_LINE][SECOND_COLOMN] == field[FIRST_LINE][THIRD_COLOMN]) && (field[FIRST_LINE][FIRST_COLOMN] == 2))
+	{
+		DrawOWinSprite(oWinSprite, window);
+		return 1;
+	}
+	else if ((field[SECOND_LINE][FIRST_COLOMN] == field[SECOND_LINE][SECOND_COLOMN]) && (field[SECOND_LINE][SECOND_COLOMN] == field[SECOND_LINE][THIRD_COLOMN]) && (field[SECOND_LINE][FIRST_COLOMN] == 2))
+	{
+		DrawOWinSprite(oWinSprite, window);
+		return 1;
+	}
+	else if ((field[FIRST_LINE][SECOND_COLOMN] == field[SECOND_LINE][SECOND_COLOMN]) && (field[SECOND_LINE][SECOND_COLOMN] == field[THIRD_LINE][SECOND_COLOMN]) && (field[FIRST_LINE][SECOND_COLOMN] == 2))
+	{
+		DrawOWinSprite(oWinSprite, window);
+		return 1;
+	}
+	else if (field[THIRD_LINE][FIRST_COLOMN] == field[THIRD_LINE][SECOND_COLOMN] && field[THIRD_LINE][SECOND_COLOMN] == field[THIRD_LINE][THIRD_COLOMN] && field[THIRD_LINE][FIRST_COLOMN] == 2)
+	{
+		DrawOWinSprite(oWinSprite, window);
+		return 1;
+	}
+	else if (field[FIRST_LINE][THIRD_COLOMN] == field[SECOND_LINE][THIRD_COLOMN] && field[SECOND_LINE][THIRD_COLOMN] == field[THIRD_LINE][THIRD_COLOMN] && field[FIRST_LINE][THIRD_COLOMN] == 2)
+	{
+		DrawOWinSprite(oWinSprite, window);
+		return 1;
+	}
+	else if (field[FIRST_LINE][FIRST_COLOMN] == field[SECOND_LINE][SECOND_COLOMN] && field[SECOND_LINE][SECOND_COLOMN] == field[THIRD_LINE][THIRD_COLOMN] && field[FIRST_LINE][FIRST_COLOMN] == 2)
+	{
+		DrawOWinSprite(oWinSprite, window);
+		return 1;
+	}
+	else if (field[THIRD_LINE][FIRST_COLOMN] == field[SECOND_LINE][SECOND_COLOMN] && field[SECOND_LINE][SECOND_COLOMN] == field[FIRST_LINE][THIRD_COLOMN] && field[THIRD_LINE][FIRST_COLOMN] == 2)
+	{
+		DrawOWinSprite(oWinSprite, window);
+		return 1;
+	}
+}
+
 int CheckEndGame(sf::RenderWindow& window, int field[FIELD_CELLS][FIELD_CELLS], int turnCounter)
 {
 	//draw
@@ -284,103 +300,11 @@ int CheckEndGame(sf::RenderWindow& window, int field[FIELD_CELLS][FIELD_CELLS], 
 	drawTexture.loadFromFile("image/draw.png");
 	sf::Sprite drawSprite;
 	drawSprite.setTexture(drawTexture);
-	//xwin
-	sf::Texture xWinTexture;
-	xWinTexture.loadFromFile("image/xwins.png");
-	sf::Sprite xWinSprite;
-	xWinSprite.setTexture(xWinTexture);
-	//owin
-	sf::Texture oWinTexture;
-	oWinTexture.loadFromFile("image/owins.png");
-	sf::Sprite oWinSprite;
-	oWinSprite.setTexture(oWinTexture);
-	
 
-	//check cross win
-	if ((field[0][0] == field[1][0]) && (field[1][0] == field[2][0]) && (field[0][0] == 1))
-	{
-		DrawXWinSprite(xWinSprite, window);
-		return 1;
-	}
-	else if ((field[0][0] == field[0][1]) && (field[0][1] == field[0][2]) && (field[0][0] == 1))
-	{
-		DrawXWinSprite(xWinSprite, window);
-		return 1;
-	}
-	else if ((field[1][0] == field[1][1]) && (field[1][1] == field[1][2]) && (field[1][0] == 1))
-	{
-		DrawXWinSprite(xWinSprite, window);
-		return 1;
-	}
-	else if ((field[0][1] == field[1][1]) && (field[1][1] == field[2][1]) && (field[0][1] == 1))
-	{
-		DrawXWinSprite(xWinSprite, window);
-		return 1;
-	}
-	else if (field[2][0] == field[2][1] && field[2][1] == field[2][2] && field[2][0] == 1)
-	{
-		DrawXWinSprite(xWinSprite, window);
-		return 1;
-	}
-	else if (field[0][2] == field[1][2] && field[1][2] == field[2][2] && field[0][2] == 1)
-	{
-		DrawXWinSprite(xWinSprite, window);
-		return 1;
+	CheckCrossWin(field, window);
+	CheckRoundWin(field, window);
 
-	}
-	else if (field[0][0] == field[1][1] && field[1][1] == field[2][2] && field[0][0] == 1)
-	{
-		DrawXWinSprite(xWinSprite, window);
-		return 1;
-	}
-	else if (field[2][0] == field[1][1] && field[1][1] == field[0][2] && field[2][0] == 1)
-	{
-		DrawXWinSprite(xWinSprite, window);
-		return 1;
-	}
-	//check round win
-	else if ((field[0][0] == field[1][0]) && (field[1][0] == field[2][0]) && (field[0][0] == 2))
-	{
-		DrawOWinSprite(oWinSprite, window);
-		return 1;
-	}
-	else if ((field[0][0] == field[0][1]) && (field[0][1] == field[0][2]) && (field[0][0] == 2))
-	{
-		DrawOWinSprite(oWinSprite, window);
-		return 1;
-	}
-	else if ((field[1][0] == field[1][1]) && (field[1][1] == field[1][2]) && (field[1][0] == 2))
-	{
-		DrawOWinSprite(oWinSprite, window);
-		return 1;
-	}
-	else if ((field[0][1] == field[1][1]) && (field[1][1] == field[2][1]) && (field[0][1] == 2))
-	{
-		DrawOWinSprite(oWinSprite, window);
-		return 1;
-	}
-	else if (field[2][0] == field[2][1] && field[2][1] == field[2][2] && field[2][0] == 2)
-	{
-		DrawOWinSprite(oWinSprite, window);
-		return 1;
-	}
-	else if (field[0][2] == field[1][2] && field[1][2] == field[2][2] && field[0][2] == 2)
-	{
-		DrawOWinSprite(oWinSprite, window);
-		return 1;
-	}
-	else if (field[0][0] == field[1][1] && field[1][1] == field[2][2] && field[0][0] == 2)
-	{
-		DrawOWinSprite(oWinSprite, window);
-		return 1;
-	}
-	else if (field[2][0] == field[1][1] && field[1][1] == field[0][2] && field[2][0] == 2)
-	{
-		DrawOWinSprite(oWinSprite, window);
-		return 1;
-	}
-	//draw
-	else if (turnCounter >= 9)
+	if (turnCounter >= MAX_TURNS)
 	{
 		drawSprite.setPosition(DRAW_SPRITE_POSITION.x, DRAW_SPRITE_POSITION.y);
 		window.draw(drawSprite);
@@ -396,7 +320,7 @@ void CheckMenuUsing(sf::RenderWindow& window, int& playerCount, int& turnCounter
 
 	if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
 	{
-		if (mouseX >= 676 && mouseX <= 804 && mouseY >= 360 && mouseY <= 488)
+		if (mouseX >= EXIT_POSITION.x && mouseX <= REFRESH_SPRITE_POSITION.x + SPRITE_SIDE && mouseY >= EXIT_POSITION.y && mouseY <= EXIT_POSITION.y + SPRITE_SIDE)
 		{
 			for (int line= 0; line< FIELD_CELLS; line++)
 			{
@@ -409,7 +333,7 @@ void CheckMenuUsing(sf::RenderWindow& window, int& playerCount, int& turnCounter
 			turnCounter = 0;
 			isPlayersTurn = true;
 		}
-		else if (mouseX >= 676 && mouseX <= 804 && mouseY >= 150 && mouseY <= 278)
+		else if (mouseX >= REFRESH_SPRITE_POSITION.x && mouseX <= REFRESH_SPRITE_POSITION.x + SPRITE_SIDE && mouseY >= REFRESH_SPRITE_POSITION.y && mouseY <= REFRESH_SPRITE_POSITION.y + SPRITE_SIDE)
 		{
 			for (int line= 0; line< FIELD_CELLS; line++)
 			{
@@ -425,8 +349,9 @@ void CheckMenuUsing(sf::RenderWindow& window, int& playerCount, int& turnCounter
 }
 
 //start menu. choose number of players 1\2
-void ChoosePlayersNumber(sf::RenderWindow& window, int& playerCount, sf::Sprite& currentSprite)
+void ChoosePlayersNumber(sf::RenderWindow& window, int& playerCount, Sprites& mySprites)
 {
+	mySprites.SetCurrentChoise();
 	if (playerCount == 0)
 	{
 		float mouseX = sf::Mouse::getPosition(window).x;
@@ -434,8 +359,8 @@ void ChoosePlayersNumber(sf::RenderWindow& window, int& playerCount, sf::Sprite&
 
 		if (mouseX >= ONE_PLAYER_SPRITE_POSITION_X.x && mouseX <= ONE_PLAYER_SPRITE_POSITION_X.y && mouseY >= ONE_PLAYER_SPRITE_POSITION_Y.x && mouseY <= ONE_PLAYER_SPRITE_POSITION_Y.y)
 		{
-			currentSprite.setPosition(CURRENTSPRITE_POSITION_IF_ONE_PLAYER.x, CURRENTSPRITE_POSITION_IF_ONE_PLAYER.y);
-			window.draw(currentSprite);
+			mySprites.currentSprite.setPosition(CURRENTSPRITE_POSITION_IF_ONE_PLAYER.x, CURRENTSPRITE_POSITION_IF_ONE_PLAYER.y);
+			window.draw(mySprites.currentSprite);
 			if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
 			{
 				playerCount = 1;
@@ -443,8 +368,8 @@ void ChoosePlayersNumber(sf::RenderWindow& window, int& playerCount, sf::Sprite&
 		}
 		else if (mouseX >= TWO_PLAYERS_SPRITE_POSITION_X.x && mouseX <= TWO_PLAYERS_SPRITE_POSITION_X.y && mouseY >= TWO_PLAYERS_SPRITE_POSITION_Y.x && mouseY <= TWO_PLAYERS_SPRITE_POSITION_Y.y)
 		{
-			currentSprite.setPosition(CURRENTSPRITE_POSITION_IF_TWO_PLAYERS.x, CURRENTSPRITE_POSITION_IF_TWO_PLAYERS.y);
-			window.draw(currentSprite);
+			mySprites.currentSprite.setPosition(CURRENTSPRITE_POSITION_IF_TWO_PLAYERS.x, CURRENTSPRITE_POSITION_IF_TWO_PLAYERS.y);
+			window.draw(mySprites.currentSprite);
 			if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
 			{
 				playerCount = 2;
@@ -454,12 +379,44 @@ void ChoosePlayersNumber(sf::RenderWindow& window, int& playerCount, sf::Sprite&
 
 }
 
-void DrawStartMenu(sf::RectangleShape& rectangleStart, sf::Sprite& textSprite, sf::Sprite& oneSprite, sf::Sprite& twoSprite, sf::RenderWindow& window)
+void DrawStartMenu(Sprites& mySprites, sf::RenderWindow& window)
 {
-	window.draw(rectangleStart);
-	window.draw(textSprite);
-	window.draw(oneSprite);
-	window.draw(twoSprite);
+	mySprites.SetStartRectangle();
+	mySprites.SetText();
+	mySprites.SetChoosePlayersCount();
+	window.draw(mySprites.rectangleStart);
+	window.draw(mySprites.textSprite);
+	window.draw(mySprites.oneSprite);
+	window.draw(mySprites.twoSprite);
+}
+
+void ProcessEvents(sf::RenderWindow& window)
+{
+	sf::Event event;
+
+	while (window.pollEvent(event))
+	{
+		switch (event.type)
+		{
+		case sf::Event::Closed:
+			window.close();
+			break;
+		}
+	}
+}
+
+void StartScreen(int& playerCount, Sprites& mySprites, sf::RenderWindow& window)
+{
+	if (playerCount == 0)
+	{
+		DrawStartMenu(mySprites, window);
+		ChoosePlayersNumber(window, playerCount, mySprites);
+		while (sf::Mouse::isButtonPressed(sf::Mouse::Left))
+		{
+			DrawStartMenu(mySprites, window);
+			ChoosePlayersNumber(window, playerCount, mySprites);
+		}
+	}
 }
 
 int main()
@@ -472,84 +429,23 @@ int main()
 	int turnCounter = 0;
 	int playerCount = 0;
 
-	sf::RectangleShape rectangleStart(sf::Vector2f(830, 620));
-	rectangleStart.setFillColor(sf::Color::White);
-	rectangleStart.setPosition(SPACE_BETWEEN_CELL, SPACE_BETWEEN_CELL);
+	sf::RenderWindow window(sf::VideoMode(WINDOW_SIZE.x, WINDOW_SIZE.y), "Tic-Tac-Toe", sf::Style::Close);
 
-	//cross\round sprites
-	sf::Texture crossTexture;
-	sf::Texture roundTexture;
-	crossTexture.loadFromFile("image/cross.png");
-	roundTexture.loadFromFile("image/round.png");
-	sf::Sprite crossSprite;
-	sf::Sprite roundSprite;
-	crossSprite.setTexture(crossTexture);
-	roundSprite.setTexture(roundTexture);
-
-	//text
-	sf::Texture textTexture;
-	textTexture.loadFromFile("image/text.png");
-	sf::Sprite textSprite;
-	textSprite.setTexture(textTexture);
-	textSprite.setPosition(100, 100);
-
-	//1 player
-	sf::Texture oneTexture;
-	oneTexture.loadFromFile("image/1.png");
-	sf::Sprite oneSprite;
-	oneSprite.setTexture(oneTexture);
-	oneSprite.setPosition(100, 260);
-
-	//2 player
-	sf::Texture twoTexture;
-	twoTexture.loadFromFile("image/2.png");
-	sf::Sprite twoSprite;
-	twoSprite.setTexture(twoTexture);
-	twoSprite.setPosition(100, 370);
-
-	//current player choise
-	sf::Texture currentTexture;
-	currentTexture.loadFromFile("image/current.png");
-	sf::Sprite currentSprite;
-	currentSprite.setTexture(currentTexture);
-
-	sf::RenderWindow window(sf::VideoMode(850, 640), "Tic-Tac-Toe", sf::Style::Close);
-
-	sf::RectangleShape rectangle(sf::Vector2f(CELL_SIDE, CELL_SIDE));
-	rectangle.setFillColor(sf::Color::Green);
+	Sprites mySprites;
 
 	while (window.isOpen())
 	{
-		sf::Event event;
-
-		while (window.pollEvent(event))
-		{
-			switch (event.type)
-			{
-			case sf::Event::Closed:
-				window.close();
-				break;
-			}
-		}
+		ProcessEvents(window);
 
 		window.clear();
-
-		if (playerCount == 0)
-		{
-			DrawStartMenu(rectangleStart, textSprite, oneSprite, twoSprite, window);
-			ChoosePlayersNumber(window, playerCount, currentSprite);
-			while (sf::Mouse::isButtonPressed(sf::Mouse::Left))
-			{
-				DrawStartMenu(rectangleStart, textSprite, oneSprite, twoSprite, window);
-				ChoosePlayersNumber(window, playerCount, currentSprite);
-			}
-		}
+		
+		StartScreen(playerCount, mySprites, window);
 
 		if (playerCount != 0)
 		{
-			DrawWindow(rectangle, window);
+			DrawWindow(window);
 			CheckMenuUsing(window, playerCount, turnCounter, isPlayersTurn, field);
-			DrawMarksInCell(window, field, crossSprite, roundSprite);
+			DrawMarksInCell(window, field, mySprites);
 			if (CheckEndGame(window, field, turnCounter) == 0)
 			{
 				if (playerCount == 1)
@@ -560,6 +456,7 @@ int main()
 				CheckEndGame(window, field, turnCounter);
 			}
 		}
+		
 		window.display();
 	}
 	return 0;

@@ -93,19 +93,9 @@ void FillCell(int line, int colomn, int field[FIELD_CELLS][FIELD_CELLS], bool& i
 	}
 }
 
-int PutMarkInCell(sf::RenderWindow& window, bool& isPlayersTurn, int& turnCounter, int field[FIELD_CELLS][FIELD_CELLS])
+void SetTurnCounter(int field[FIELD_CELLS][FIELD_CELLS], int& turnCounter)
 {
 	turnCounter = 0;
-	sf::Texture crossWinTexture;
-	crossWinTexture.loadFromFile("image/xwins.png");
-	sf::Sprite crossWinSprite;
-	crossWinSprite.setTexture(crossWinTexture);
-
-
-	float mouseX = sf::Mouse::getPosition(window).x;
-	float mouseY = sf::Mouse::getPosition(window).y;
-
-
 	for (int line = 0; line < FIELD_CELLS; line++)
 	{
 		for (int colomn = 0; colomn < FIELD_CELLS; colomn++)
@@ -116,62 +106,69 @@ int PutMarkInCell(sf::RenderWindow& window, bool& isPlayersTurn, int& turnCounte
 			}
 		}
 	}
+}
 
+bool isMouseInRange(sf::Vector2i& rangeX, sf::Vector2i& rangeY, sf::RenderWindow& window)
+{
+	float mouseX = sf::Mouse::getPosition(window).x;
+	float mouseY = sf::Mouse::getPosition(window).y;
+
+	//cout << rangeX.x << "  " << rangeX.y << "   " << mouseX << endl;
+
+	if (rangeX.x <= mouseX && mouseX <= rangeX.y && rangeY.x <= mouseY && mouseY <= rangeY.y)
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+
+int PutMarkInCell(sf::RenderWindow& window, bool& isPlayersTurn, int& turnCounter, int field[FIELD_CELLS][FIELD_CELLS])
+{
+	SetTurnCounter(field, turnCounter);
 	
-
 	//заполняем массив при ходе
 	if (sf::Event::GainedFocus && sf::Event::MouseEntered)
 	{
 		if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
 		{
-			if (SPACE_BETWEEN_CELL <= mouseX && mouseX <= CELL_SIZE_PLUS_SPACE)
+			if (isMouseInRange(sf::Vector2i(SPACE_BETWEEN_CELL, CELL_SIZE_PLUS_SPACE), sf::Vector2i(SPACE_BETWEEN_CELL, CELL_SIZE_PLUS_SPACE), window))
 			{
-				if (SPACE_BETWEEN_CELL <= mouseY && mouseY <= CELL_SIZE_PLUS_SPACE)
-				{
-					FillCell(FIRST_LINE, FIRST_COLOMN, field, isPlayersTurn);
-				}
-				else if (SECOND_CELL_POSITION_START <= mouseY && mouseY <= SECOND_CELL_POSITION_END)
-				{
-					FillCell(SECOND_LINE, FIRST_COLOMN, field, isPlayersTurn);
-				}
-				else if (THIRD_CELL_POSITION_START <= mouseY && mouseY <= THIRD_CELL_POSITION_END)
-				{
-					FillCell(THIRD_LINE, FIRST_COLOMN, field, isPlayersTurn);
-				}
+				FillCell(FIRST_LINE, FIRST_COLOMN, field, isPlayersTurn);
 			}
-			else if (SECOND_CELL_POSITION_START <= mouseX && mouseX <= SECOND_CELL_POSITION_END)
+			else if (isMouseInRange(sf::Vector2i(SPACE_BETWEEN_CELL, CELL_SIZE_PLUS_SPACE), sf::Vector2i(SECOND_CELL_POSITION_START, SECOND_CELL_POSITION_END), window))
 			{
-				if (SPACE_BETWEEN_CELL <= mouseY && mouseY <= CELL_SIZE_PLUS_SPACE)
-				{
-					FillCell(FIRST_LINE, SECOND_COLOMN, field, isPlayersTurn);
-				}
-
-
-				else if (SECOND_CELL_POSITION_START <= mouseY && mouseY <= SECOND_CELL_POSITION_END)
-				{
-					FillCell(SECOND_LINE, SECOND_COLOMN, field, isPlayersTurn);
-				}
-				else if (THIRD_CELL_POSITION_START <= mouseY && mouseY <= THIRD_CELL_POSITION_END)
-				{
-					FillCell(THIRD_LINE, SECOND_COLOMN, field, isPlayersTurn);
-				}
+				FillCell(SECOND_LINE, FIRST_COLOMN, field, isPlayersTurn);
 			}
-			else if (THIRD_CELL_POSITION_START <= mouseX && mouseX <= THIRD_CELL_POSITION_END)
+			else if (isMouseInRange(sf::Vector2i(SPACE_BETWEEN_CELL, CELL_SIZE_PLUS_SPACE), sf::Vector2i(THIRD_CELL_POSITION_START, THIRD_CELL_POSITION_END), window))
 			{
-				if (SPACE_BETWEEN_CELL <= mouseY && mouseY <= CELL_SIZE_PLUS_SPACE)
-				{
-					FillCell(FIRST_LINE, THIRD_COLOMN, field, isPlayersTurn);
-				}
-
-
-				else if (SECOND_CELL_POSITION_START <= mouseY && mouseY <= SECOND_CELL_POSITION_END)
-				{
-					FillCell(SECOND_LINE, THIRD_COLOMN, field, isPlayersTurn);
-				}
-				else if (THIRD_CELL_POSITION_START <= mouseY && mouseY <= THIRD_CELL_POSITION_END)
-				{
-					FillCell(THIRD_LINE, THIRD_COLOMN, field, isPlayersTurn);
-				}
+				FillCell(THIRD_LINE, FIRST_COLOMN, field, isPlayersTurn);
+			}
+			else if (isMouseInRange(sf::Vector2i(SECOND_CELL_POSITION_START, SECOND_CELL_POSITION_END), sf::Vector2i(SPACE_BETWEEN_CELL, CELL_SIZE_PLUS_SPACE), window))
+			{
+				FillCell(FIRST_LINE, SECOND_COLOMN, field, isPlayersTurn);
+			}
+			else if (isMouseInRange(sf::Vector2i(SECOND_CELL_POSITION_START, SECOND_CELL_POSITION_END), sf::Vector2i(SECOND_CELL_POSITION_START, SECOND_CELL_POSITION_END), window))
+			{
+				FillCell(SECOND_LINE, SECOND_COLOMN, field, isPlayersTurn);
+			}
+			else if (isMouseInRange(sf::Vector2i(SECOND_CELL_POSITION_START, SECOND_CELL_POSITION_END), sf::Vector2i(THIRD_CELL_POSITION_START, THIRD_CELL_POSITION_END), window))
+			{
+				FillCell(THIRD_LINE, SECOND_COLOMN, field, isPlayersTurn);
+			}
+			else if (isMouseInRange(sf::Vector2i(THIRD_CELL_POSITION_START, THIRD_CELL_POSITION_END), sf::Vector2i(SPACE_BETWEEN_CELL, CELL_SIZE_PLUS_SPACE), window))
+			{
+				FillCell(FIRST_LINE, THIRD_COLOMN, field, isPlayersTurn);
+			}
+			else if (isMouseInRange(sf::Vector2i(THIRD_CELL_POSITION_START, THIRD_CELL_POSITION_END), sf::Vector2i(SECOND_CELL_POSITION_START, SECOND_CELL_POSITION_END), window))
+			{
+				FillCell(SECOND_LINE, THIRD_COLOMN, field, isPlayersTurn);
+			}
+			else if (isMouseInRange(sf::Vector2i(THIRD_CELL_POSITION_START, THIRD_CELL_POSITION_END), sf::Vector2i(THIRD_CELL_POSITION_START, THIRD_CELL_POSITION_END), window))
+			{
+				FillCell(THIRD_LINE, THIRD_COLOMN, field, isPlayersTurn);
 			}
 		}
 	}
@@ -190,7 +187,7 @@ void DrawOWinSprite(sf::Sprite& oWinSprite, sf::RenderWindow& window)
 	window.draw(oWinSprite);
 }
 
-int CheckCrossWin(int field[FIELD_CELLS][FIELD_CELLS], sf::RenderWindow& window)
+bool CheckCrossWin(int field[FIELD_CELLS][FIELD_CELLS], sf::RenderWindow& window)
 {
 	//xwin
 	sf::Texture xWinTexture;
@@ -242,7 +239,7 @@ int CheckCrossWin(int field[FIELD_CELLS][FIELD_CELLS], sf::RenderWindow& window)
 	}
 }
 
-int CheckRoundWin(int field[FIELD_CELLS][FIELD_CELLS], sf::RenderWindow& window)
+bool CheckRoundWin(int field[FIELD_CELLS][FIELD_CELLS], sf::RenderWindow& window)
 {
 	//owin
 	sf::Texture oWinTexture;
@@ -293,7 +290,7 @@ int CheckRoundWin(int field[FIELD_CELLS][FIELD_CELLS], sf::RenderWindow& window)
 	}
 }
 
-int CheckEndGame(sf::RenderWindow& window, int field[FIELD_CELLS][FIELD_CELLS], int turnCounter)
+bool CheckEndGame(sf::RenderWindow& window, int field[FIELD_CELLS][FIELD_CELLS], int turnCounter)
 {
 	//draw
 	sf::Texture drawTexture;
@@ -301,9 +298,11 @@ int CheckEndGame(sf::RenderWindow& window, int field[FIELD_CELLS][FIELD_CELLS], 
 	sf::Sprite drawSprite;
 	drawSprite.setTexture(drawTexture);
 
-	CheckCrossWin(field, window);
-	CheckRoundWin(field, window);
-
+	if (CheckCrossWin(field, window) || CheckRoundWin(field, window))
+	{
+		return 1;
+	}
+	
 	if (turnCounter >= MAX_TURNS)
 	{
 		drawSprite.setPosition(DRAW_SPRITE_POSITION.x, DRAW_SPRITE_POSITION.y);
@@ -320,7 +319,7 @@ void CheckMenuUsing(sf::RenderWindow& window, int& playerCount, int& turnCounter
 
 	if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
 	{
-		if (mouseX >= EXIT_POSITION.x && mouseX <= REFRESH_SPRITE_POSITION.x + SPRITE_SIDE && mouseY >= EXIT_POSITION.y && mouseY <= EXIT_POSITION.y + SPRITE_SIDE)
+		if (isMouseInRange(sf::Vector2i(EXIT_POSITION.x, EXIT_POSITION.x + SPRITE_SIDE), sf::Vector2i(EXIT_POSITION.y, EXIT_POSITION.y + SPRITE_SIDE), window))
 		{
 			for (int line= 0; line< FIELD_CELLS; line++)
 			{
@@ -333,7 +332,7 @@ void CheckMenuUsing(sf::RenderWindow& window, int& playerCount, int& turnCounter
 			turnCounter = 0;
 			isPlayersTurn = true;
 		}
-		else if (mouseX >= REFRESH_SPRITE_POSITION.x && mouseX <= REFRESH_SPRITE_POSITION.x + SPRITE_SIDE && mouseY >= REFRESH_SPRITE_POSITION.y && mouseY <= REFRESH_SPRITE_POSITION.y + SPRITE_SIDE)
+		else if (isMouseInRange(sf::Vector2i(REFRESH_SPRITE_POSITION.x, REFRESH_SPRITE_POSITION.x + SPRITE_SIDE), sf::Vector2i(REFRESH_SPRITE_POSITION.y, REFRESH_SPRITE_POSITION.x + SPRITE_SIDE), window))
 		{
 			for (int line= 0; line< FIELD_CELLS; line++)
 			{
@@ -357,7 +356,7 @@ void ChoosePlayersNumber(sf::RenderWindow& window, int& playerCount, Sprites& my
 		float mouseX = sf::Mouse::getPosition(window).x;
 		float mouseY = sf::Mouse::getPosition(window).y;
 
-		if (mouseX >= ONE_PLAYER_SPRITE_POSITION_X.x && mouseX <= ONE_PLAYER_SPRITE_POSITION_X.y && mouseY >= ONE_PLAYER_SPRITE_POSITION_Y.x && mouseY <= ONE_PLAYER_SPRITE_POSITION_Y.y)
+		if (isMouseInRange(sf::Vector2i(ONE_PLAYER_SPRITE_POSITION_X.x, ONE_PLAYER_SPRITE_POSITION_X.y), sf::Vector2i(ONE_PLAYER_SPRITE_POSITION_Y.x, ONE_PLAYER_SPRITE_POSITION_Y.y), window))
 		{
 			mySprites.currentSprite.setPosition(CURRENTSPRITE_POSITION_IF_ONE_PLAYER.x, CURRENTSPRITE_POSITION_IF_ONE_PLAYER.y);
 			window.draw(mySprites.currentSprite);
@@ -366,7 +365,7 @@ void ChoosePlayersNumber(sf::RenderWindow& window, int& playerCount, Sprites& my
 				playerCount = 1;
 			}
 		}
-		else if (mouseX >= TWO_PLAYERS_SPRITE_POSITION_X.x && mouseX <= TWO_PLAYERS_SPRITE_POSITION_X.y && mouseY >= TWO_PLAYERS_SPRITE_POSITION_Y.x && mouseY <= TWO_PLAYERS_SPRITE_POSITION_Y.y)
+		else if (isMouseInRange(sf::Vector2i(TWO_PLAYERS_SPRITE_POSITION_X.x, TWO_PLAYERS_SPRITE_POSITION_X.y), sf::Vector2i(TWO_PLAYERS_SPRITE_POSITION_Y.x, TWO_PLAYERS_SPRITE_POSITION_Y.y), window))
 		{
 			mySprites.currentSprite.setPosition(CURRENTSPRITE_POSITION_IF_TWO_PLAYERS.x, CURRENTSPRITE_POSITION_IF_TWO_PLAYERS.y);
 			window.draw(mySprites.currentSprite);
@@ -407,8 +406,6 @@ void ProcessEvents(sf::RenderWindow& window)
 
 void StartScreen(int& playerCount, Sprites& mySprites, sf::RenderWindow& window)
 {
-	if (playerCount == 0)
-	{
 		DrawStartMenu(mySprites, window);
 		ChoosePlayersNumber(window, playerCount, mySprites);
 		while (sf::Mouse::isButtonPressed(sf::Mouse::Left))
@@ -416,7 +413,6 @@ void StartScreen(int& playerCount, Sprites& mySprites, sf::RenderWindow& window)
 			DrawStartMenu(mySprites, window);
 			ChoosePlayersNumber(window, playerCount, mySprites);
 		}
-	}
 }
 
 int main()
@@ -439,8 +435,10 @@ int main()
 
 		window.clear();
 		
-		StartScreen(playerCount, mySprites, window);
-
+		if (playerCount == 0)
+		{
+			StartScreen(playerCount, mySprites, window);
+		}
 		if (playerCount != 0)
 		{
 			DrawWindow(window);
@@ -456,7 +454,6 @@ int main()
 				CheckEndGame(window, field, turnCounter);
 			}
 		}
-		
 		window.display();
 	}
 	return 0;

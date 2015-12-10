@@ -27,12 +27,12 @@ int main()
 
 	RenderWindow window(sf::VideoMode(WINDOW_SIZE.x, WINDOW_SIZE.y), "7.3",Style::Close, settings);
 
-	Pendulum *myPendulum = new Pendulum;
-	InitSprites(myPendulum);
-	InitShapes(myPendulum);
-
 	Clock clock;
 	Time updateTime = Time::Zero;
+
+	Pendulum *myPendulum = new Pendulum;
+	InitSprites(*myPendulum);
+	InitShapes(*myPendulum);
 
 	while (window.isOpen())
 	{
@@ -41,8 +41,8 @@ int main()
 		{
 			updateTime -= FPS_LIMIT;
 			ProcessEvents(window);
-			UpdatePendulum(myPendulum);
-			UpdateGear(myPendulum);
+			UpdatePendulum(*myPendulum);
+			UpdateGear(*myPendulum);
 		}
 		DrawWindow(window, *myPendulum);
 	}

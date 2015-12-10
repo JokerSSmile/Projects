@@ -11,12 +11,12 @@ struct Pendulum
 	Sprite RightWheelSprite;
 	ConvexShape cap;
 	ConvexShape cargo;
-	bool isLeft = false;
+	bool isMovingLeft = false;
 	float speed = 0;
 };
 
-void InitSprites(Pendulum*& myPendulum);
-void InitShapes(Pendulum*& myPendulum);
-void UpdatePendulum(Pendulum*& myPendulum);
-void UpdateGear(Pendulum*& myPendulum);
-void DestroyPendulum(Pendulum*& myPendulum);
+void InitSprites(Pendulum& myPendulum);
+void InitShapes(Pendulum& myPendulum);
+void UpdatePendulum(Pendulum& myPendulum);
+void UpdateGear(Pendulum& myPendulum);
+void DestroyPendulum(Pendulum& myPendulum);

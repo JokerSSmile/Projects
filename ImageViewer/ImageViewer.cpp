@@ -3,6 +3,7 @@
 #include <SFML/Graphics.hpp>
 #include <windows.h>
 #include <iostream>
+#include <string>
 
 using namespace std;
 using namespace sf;
@@ -11,9 +12,32 @@ using namespace sf;
 const int WINDOW_WIDTH = 800;
 const int WINDOW_HEIGHT = 600;
 
-const char EXPANSIONS[4][6] = { "jpeg", "jpg", "png", "bmp" };
+const int MAX_ZOOM = 7;
+
+const Vector2i RIGHT_BUTTON_SPRITE_SHIFT = { 40, 0 };
+const Vector2i LEFT_BUTTON_SPRITE_SHIFT = { 40, 0 };
+const Vector2i ZOOM_BUTTON_SPRITE_SHIFT = { 30, 40 };
+
+vector<string> EXPANSIONS = { "jpeg", "jpg", "png", "bmp" };
 
 Texture imageTexture;
+
+struct
+{
+	Font font;
+} ErrorFont;
+
+struct
+{
+	int counter = 0;
+	int zoomCount = 1;
+	int imageCount = 0;
+	bool isLoaded = false;
+	bool isCorrectDir = true;
+	bool isButtonPressed = false;
+	char directoryPath[250] = {};
+	char imagesInDirectory[200][150] = {};
+} settings;
 
 void ErrorNoImagesInDir(RenderWindow & window)
 {
@@ -21,13 +45,10 @@ void ErrorNoImagesInDir(RenderWindow & window)
 
 	window.clear(Color(200, 200, 200));
 	Text text;
-	Font font;
-	font.loadFromFile("font/times.ttf");
 	text.setString("No images in given directory");
-	text.setFont(font);
+	text.setFont(ErrorFont.font);
 	text.setColor(Color::Black);
 	text.setCharacterSize(20);
-
 	FloatRect textRect = text.getLocalBounds();
 	text.setOrigin(textRect.width / 2, textRect.height / 2);
 	text.setPosition(window.getSize().x/2, window.getSize().y/2);
@@ -41,13 +62,10 @@ void ErrorNoDirExists(RenderWindow & window)
 
 	window.clear(Color(200, 200, 200));
 	Text text;
-	Font font;
-	font.loadFromFile("font/times.ttf");
 	text.setString("Given directory is not exist");
-	text.setFont(font);
+	text.setFont(ErrorFont.font);
 	text.setColor(Color::Black);
 	text.setCharacterSize(20);
-
 	FloatRect textRect = text.getLocalBounds();
 	text.setOrigin(textRect.width / 2, textRect.height / 2);
 	text.setPosition(window.getSize().x / 2, window.getSize().y / 2);
@@ -55,7 +73,23 @@ void ErrorNoDirExists(RenderWindow & window)
 	window.draw(text);
 }
 
-void IfNext(bool& isLoaded, bool& isButtonPressed, int& zoomCount)
+void ErrorCantLoadImg(RenderWindow& window, View& view, bool& isError)
+{
+	Vector2u windowSize = window.getSize();
+	window.clear(Color(200, 200, 200));
+	Text text;
+	text.setString("Can not load the image");
+	text.setFont(ErrorFont.font);
+	text.setColor(Color::Black);
+	text.setCharacterSize(20);
+	FloatRect textRect = text.getLocalBounds();
+	text.setOrigin(textRect.width / 2, textRect.height / 2);
+	text.setPosition(view.getCenter().x, view.getCenter().y);
+	window.draw(text);
+	isError = true;
+}
+
+void OnNextImage(bool& isLoaded, bool& isButtonPressed, int& zoomCount)
 {
 	zoomCount = 1;
 	isButtonPressed = true;
@@ -64,24 +98,25 @@ void IfNext(bool& isLoaded, bool& isButtonPressed, int& zoomCount)
 
 int CheckButtons(Sprite & plus, Sprite & minus, Sprite & left, Sprite & right, RenderWindow & window, bool& isLoaded, int& counter, bool& isButtonPressed, int& zoomCount)
 {
+	Vector2f mousePos = { float(Mouse::getPosition(window).x), float(Mouse::getPosition(window).y) };
 	if (Mouse::isButtonPressed(Mouse::Left) && isButtonPressed == false)
 	{
-		if (right.getGlobalBounds().contains(Mouse::getPosition(window).x, Mouse::getPosition(window).y))
+		if (right.getGlobalBounds().contains(mousePos.x, mousePos.y))
 		{
 			counter++;
-			IfNext(isLoaded, isButtonPressed, zoomCount);
+			OnNextImage(isLoaded, isButtonPressed, zoomCount);
 		}
-		else if (left.getGlobalBounds().contains(Mouse::getPosition(window).x, Mouse::getPosition(window).y))
+		else if (left.getGlobalBounds().contains(mousePos.x, mousePos.y))
 		{
 			counter--;
-			IfNext(isLoaded, isButtonPressed, zoomCount);
+			OnNextImage(isLoaded, isButtonPressed, zoomCount);
 		}
-		else if (plus.getGlobalBounds().contains(Mouse::getPosition(window).x, Mouse::getPosition(window).y))
+		else if (plus.getGlobalBounds().contains(mousePos.x, mousePos.y))
 		{
 			zoomCount++;
 			isButtonPressed = true;
 		}
-		else if (minus.getGlobalBounds().contains(Mouse::getPosition(window).x, Mouse::getPosition(window).y))
+		else if (minus.getGlobalBounds().contains(mousePos.x, mousePos.y))
 		{
 			zoomCount--;
 			isButtonPressed = true;
@@ -119,18 +154,18 @@ void DrawButtons(RenderWindow & window, bool& isLoaded, int& counter, bool& isBu
 	left.setOrigin(imageSize.width / 2, imageSize.height / 2);
 	right.setOrigin(imageSize.width / 2, imageSize.height / 2);
 
-	left.setPosition(40, windowSize.y / 2);
-	right.setPosition(windowSize.x - 40, windowSize.y / 2);
-	plus.setPosition(windowSize.x / 2 - 30, windowSize.y - 40);
-	minus.setPosition(windowSize.x / 2 + 30, windowSize.y - 40);
+	left.setPosition(LEFT_BUTTON_SPRITE_SHIFT.x, windowSize.y / 2);
+	right.setPosition(windowSize.x - RIGHT_BUTTON_SPRITE_SHIFT.x, windowSize.y / 2);
+	plus.setPosition(windowSize.x / 2 - ZOOM_BUTTON_SPRITE_SHIFT.x, windowSize.y - ZOOM_BUTTON_SPRITE_SHIFT.y);
+	minus.setPosition(windowSize.x / 2 + ZOOM_BUTTON_SPRITE_SHIFT.x, windowSize.y - ZOOM_BUTTON_SPRITE_SHIFT.y);
 
-	CheckButtons(plus, minus, left, right, window, isLoaded, counter, isButtonPressed, zoomCount);
+	CheckButtons(plus, minus, left, right, window, settings.isLoaded, settings.counter, settings.isButtonPressed, settings.zoomCount);
 
-	if (zoomCount < 7)
+	if (settings.zoomCount < MAX_ZOOM)
 	{
 		window.draw(plus);
 	}
-	if (zoomCount > 1)
+	if (settings.zoomCount > 1)
 	{
 		window.draw(minus);
 	}
@@ -143,29 +178,29 @@ void SetZoom(Sprite & imageSprite, RenderWindow & window, bool& isButtonPressed,
 	if (window.hasFocus())
 	{
 		//+- scale
-		if (Keyboard::isKeyPressed(Keyboard::Up) && isButtonPressed == false)
+		if (Keyboard::isKeyPressed(Keyboard::Up) && settings.isButtonPressed == false)
 		{
-			isButtonPressed = true;
-			zoomCount += 1;
+			settings.isButtonPressed = true;
+			settings.zoomCount += 1;
 		}
-		else if (Keyboard::isKeyPressed(Keyboard::Down) && isButtonPressed == false)
+		else if (Keyboard::isKeyPressed(Keyboard::Down) && settings.isButtonPressed == false)
 		{
-			isButtonPressed = true;
-			zoomCount -= 1;
+			settings.isButtonPressed = true;
+			settings.zoomCount -= 1;
 		}
 	}
 
 	//set scale
-	if (zoomCount > 7)
+	if (settings.zoomCount > MAX_ZOOM)
 	{
-		zoomCount = 7;
+		settings.zoomCount = MAX_ZOOM;
 	}
-	else if (zoomCount < 1)
+	else if (settings.zoomCount < 1)
 	{
-		zoomCount = 1;
+		settings.zoomCount = 1;
 	}
 
-	imageSprite.setScale(zoomCount, zoomCount);
+	imageSprite.setScale(settings.zoomCount, settings.zoomCount);
 }
 
 void SetImgScale(Sprite & sprite, RenderWindow & window, Vector2u & windowSize, View & view, int& zoomCount)
@@ -179,35 +214,17 @@ void SetImgScale(Sprite & sprite, RenderWindow & window, Vector2u & windowSize, 
 	{
 		if ((windowSize.y) / (imageSize.height) < (windowSize.x) / (imageSize.width))
 		{
-			sprite.setScale((windowSize.y) / (imageSize.height) * zoomCount, (windowSize.y) / (imageSize.height) * zoomCount);
+			sprite.setScale((windowSize.y) / (imageSize.height) * settings.zoomCount, (windowSize.y) / (imageSize.height) * settings.zoomCount);
 		}
 		else
 		{
-			sprite.setScale((windowSize.x) / (imageSize.width) * zoomCount, (windowSize.x) / (imageSize.width) * zoomCount);
+			sprite.setScale((windowSize.x) / (imageSize.width) * settings.zoomCount, (windowSize.x) / (imageSize.width) * settings.zoomCount);
 		}
 	}
 
 	window.setView(view);
 
 	sprite.setPosition(window.getSize().x/2, window.getSize().y/2);
-}
-
-void ErrorCantLoadImg(RenderWindow& window, View& view, bool& isError)
-{
-	Vector2u windowSize = window.getSize();
-	window.clear(Color(200, 200, 200));
-	Text text;
-	Font font;
-	font.loadFromFile("font/times.ttf");
-	text.setString("Can not load the image");
-	text.setFont(font);
-	text.setColor(Color::Black);
-	text.setCharacterSize(20);
-	FloatRect textRect = text.getLocalBounds();
-	text.setOrigin(textRect.width / 2, textRect.height / 2);
-	text.setPosition(view.getCenter().x, view.getCenter().y);
-	window.draw(text);
-	isError = true;
 }
 
 void DrawImg(char *fileName, RenderWindow & window, char *dirName, bool& isLoaded, bool& isButtonPressed, int& zoomCount)
@@ -226,11 +243,11 @@ void DrawImg(char *fileName, RenderWindow & window, char *dirName, bool& isLoade
 
 	Vector2u imgSize = imageTexture.getSize();
 
-	if (isLoaded == false)
+	if (settings.isLoaded == false)
 	{
 		if (imageTexture.loadFromFile(neededDirName))
 		{
-			isLoaded = true;
+			settings.isLoaded = true;
 		}
 		else
 		{
@@ -244,17 +261,18 @@ void DrawImg(char *fileName, RenderWindow & window, char *dirName, bool& isLoade
 		imageSprite.setTexture(imageTexture);
 		imageSprite.setOrigin(window.getSize().x/2, window.getSize().y/2);
 
-		SetZoom(imageSprite, window, isButtonPressed, zoomCount);
-		SetImgScale(imageSprite, window, windowSize, view, zoomCount);
+		SetZoom(imageSprite, window, settings.isButtonPressed, settings.zoomCount);
+		SetImgScale(imageSprite, window, windowSize, view, settings.zoomCount);
 		window.draw(imageSprite);
 	}
 }
 
-bool GetExpansions(char *fileName)
+bool isCorrectExpansion(char *fileName)
 {
-	for (int i = 0; i < size(EXPANSIONS); i++)
+	for (vector<string>::iterator exp = EXPANSIONS.begin(); exp != EXPANSIONS.end(); ++exp)
 	{
-		if (strchr(fileName, '.') != 0 && strcmp(strchr(fileName, '.') + 1, EXPANSIONS[i]) == 0 && strlen(fileName) > 2)
+		const char* str = exp->c_str();
+		if (strchr(fileName, '.') != 0 && strcmp(strchr(fileName, '.') + 1, str) == 0 && strlen(fileName) > 2)
 		{
 			return 1;
 		}
@@ -262,7 +280,7 @@ bool GetExpansions(char *fileName)
 	return 0;
 }
 
-void WorkWithFiles(char imagesInDirectory[100][50], char* directoryPath, int imageCount, bool& isLoaded, int& counter, bool& isButtonPressed, int& zoomCount)
+void WorkWithFiles(char imagesInDirectory[200][150], char* directoryPath, int imageCount, bool& isLoaded, int& counter, bool& isButtonPressed, int& zoomCount)
 {
 	//path to file from drive
 	char neededDirName[150] = {};
@@ -271,31 +289,31 @@ void WorkWithFiles(char imagesInDirectory[100][50], char* directoryPath, int ima
 	strncpy(neededDirName, directoryPath, strcspn(directoryPath, "*"));
 
 	//path to file
-	strcat(neededDirName, imagesInDirectory[counter]);
+	strcat(neededDirName, imagesInDirectory[settings.counter]);
 
 	//change img
-	if (Keyboard::isKeyPressed(Keyboard::Right) && isButtonPressed == false)
+	if (Keyboard::isKeyPressed(Keyboard::Right) && settings.isButtonPressed == false)
 	{
-		counter++;
-		IfNext(isLoaded, isButtonPressed, zoomCount);
+		settings.counter++;
+		OnNextImage(settings.isLoaded, settings.isButtonPressed, settings.zoomCount);
 	}
-	else if (Keyboard::isKeyPressed(Keyboard::Left) && isButtonPressed == false)
+	else if (Keyboard::isKeyPressed(Keyboard::Left) && settings.isButtonPressed == false)
 	{
-		counter--;
-		IfNext(isLoaded, isButtonPressed, zoomCount);
+		settings.counter--;
+		OnNextImage(settings.isLoaded, settings.isButtonPressed, settings.zoomCount);
 	}
 
-	if (counter >= imageCount)
+	if (settings.counter >= settings.imageCount)
 	{
-		counter = 0;
+		settings.counter = 0;
 	}
-	else if (counter < 0)
+	else if (settings.counter < 0)
 	{
-		counter = imageCount - 1;
+		settings.counter = settings.imageCount - 1;
 	}
 }
 
-void StartInput(char directoryPath[100])
+void StartInput(char directoryPath[250])
 {
 	cout << "Input directory" << endl;
 	cout << "Correct input is: C:\\images\\*" << endl;
@@ -303,9 +321,8 @@ void StartInput(char directoryPath[100])
 	cin >> directoryPath;
 }
 
-void GetFiles(char directoryPath[100], bool& isCorrectDir, char imagesInDirectory[100][50], int& imageCount)
+void GetFiles(char directoryPath[2500], bool& isCorrectDir, char imagesInDirectory[200][150], int& imageCount)
 {
-	//vse chto v puti
 	char filesInDirectory[100][50] = {};
 
 	HANDLE handle;
@@ -315,29 +332,26 @@ void GetFiles(char directoryPath[100], bool& isCorrectDir, char imagesInDirector
 
 	if (handle == INVALID_HANDLE_VALUE)
 	{
-		isCorrectDir = false;
+		settings.isCorrectDir = false;
 	}
 	else
 	{
 		short k = 0;
-
-		//nazvaniya failov i dir
 		do
 		{
 			strcpy(filesInDirectory[k], findData.cFileName);
 			k++;
 		} while (FindNextFile(handle, &findData) != 0);
 
-		//nazvaniya kartinok v dir
 		int j = 0;
 		for (int k = 0; k < size(filesInDirectory); k++)
 		{
-			if (strlen(filesInDirectory[k]) > 2 && GetExpansions(filesInDirectory[k]))
+			if (strlen(filesInDirectory[k]) > 2 && isCorrectExpansion(filesInDirectory[k]))
 			{
 				strcpy(imagesInDirectory[j], filesInDirectory[k]);
 				j++;
 			}
-			imageCount = j;
+			settings.imageCount = j;
 		}
 	}
 	FindClose(handle);
@@ -346,11 +360,11 @@ void GetFiles(char directoryPath[100], bool& isCorrectDir, char imagesInDirector
 void CheckButtonPressed(bool& isButtonPressed)
 {
 	if (!Keyboard::isKeyPressed(Keyboard::Right) && !Keyboard::isKeyPressed(Keyboard::Left) && !Keyboard::isKeyPressed(Keyboard::Up) && !Keyboard::isKeyPressed(Keyboard::Down) && !Mouse::isButtonPressed(Mouse::Left))
-		isButtonPressed = false;
+		settings.isButtonPressed = false;
 
 	if (Mouse::isButtonPressed(Mouse::Left))
 	{
-		isButtonPressed = true;
+		settings.isButtonPressed = true;
 	}
 }
 
@@ -366,20 +380,11 @@ void ProcessEvents(RenderWindow& window)
 
 int main()
 {
-	float dX = 0;
-	float dY = 0;
-	int counter = 0;
-	int zoomCount = 1;
-	int imageCount = 0;
-	bool isLoaded = false;
-	bool isCorrectDir = true;
-	bool isButtonPressed = false;
-	char directoryPath[100] = {};
-	char imagesInDirectory[100][50] = {};
+	ErrorFont.font.loadFromFile("font/times.ttf");
 
 	RenderWindow window(VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), "");
-	StartInput(directoryPath);
-	GetFiles(directoryPath, isCorrectDir, imagesInDirectory, imageCount);
+	StartInput(settings.directoryPath);
+	GetFiles(settings.directoryPath, settings.isCorrectDir, settings.imagesInDirectory, settings.imageCount);
 
 	while (window.isOpen())
 	{
@@ -387,19 +392,19 @@ int main()
 
 		window.clear(Color(200, 200, 200));
 
-		if (imageCount > 0 && isCorrectDir == true)
+		if (settings.imageCount > 0 && settings.isCorrectDir == true)
 		{
-			WorkWithFiles(imagesInDirectory, directoryPath, imageCount, isLoaded, counter, isButtonPressed, zoomCount);
-			DrawImg(imagesInDirectory[counter], window, directoryPath, isLoaded, isButtonPressed, zoomCount);
-			DrawButtons(window, isLoaded, counter, isButtonPressed, zoomCount);
-			window.setTitle(imagesInDirectory[counter]);
-			CheckButtonPressed(isButtonPressed);
+			WorkWithFiles(settings.imagesInDirectory, settings.directoryPath, settings.imageCount, settings.isLoaded, settings.counter, settings.isButtonPressed, settings.zoomCount);
+			DrawImg(settings.imagesInDirectory[settings.counter], window, settings.directoryPath, settings.isLoaded, settings.isButtonPressed, settings.zoomCount);
+			DrawButtons(window, settings.isLoaded, settings.counter, settings.isButtonPressed, settings.zoomCount);
+			window.setTitle(settings.imagesInDirectory[settings.counter]);
+			CheckButtonPressed(settings.isButtonPressed);
 		}
-		else if (imageCount == 0 && isCorrectDir == true)
+		else if (settings.imageCount == 0 && settings.isCorrectDir == true)
 		{
 			ErrorNoImagesInDir(window);
 		}
-		else if (isCorrectDir == false)
+		else if (settings.isCorrectDir == false)
 		{
 			ErrorNoDirExists(window);
 		}

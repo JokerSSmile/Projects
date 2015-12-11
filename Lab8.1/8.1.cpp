@@ -47,6 +47,6 @@ int main()
 		}
 		DrawWindow(window, *myCar);
 	}
-
+	delete myCar;
 	return 0;
 }

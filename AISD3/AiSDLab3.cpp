@@ -4,15 +4,15 @@ struct Cmp
 {
 	bool operator()(const Player &a, const Player &b)
 	{
-		return a.rating > b.rating;
+		return a.rating < b.rating;
 	}
 } compare;
 
-void GetInputData(vector<Player>& PlayersData)
+void GetInputData()
 {
 	string line;
 	string name;
-	ifstream input("input.txt");
+	ifstream input("temp.txt");
 	while (input.good())
 	{
 		getline(input, line);
@@ -35,29 +35,191 @@ int GetNearestGrade(int num)
 	return i / 2;
 }
 
-int main()
+int GetMaxNumber(int num)
 {
-	setlocale(LC_ALL, "RUS");
-	GetInputData(PlayersData);
+	int maxNum = num;
+	while (num != 2)
+	{
+		num = num / 2;
+		maxNum += num;
+	}
+	return maxNum;
+}
 
-	Node* Tree = NULL;
-
-
-
+void GetQualifyingData()
+{
 	sort(PlayersData.begin(), PlayersData.end(), compare);
 	for (vector<Player>::iterator it = PlayersData.begin(); it != PlayersData.end(); ++it)
 	{
-		TreeAdd(it, Tree);
+		if (size(Qualifying) < GetNearestGrade(size(PlayersData)))
+		{
+			Qualifying.push_back(*it);
+		}
+		else
+		{
+			Playoff.push_back(*it);
+		}
+	}
+}
+
+void SetPlayoffData(vector<Player>& Difference, int& ratingDifference)
+{
+	while (size(Qualifying) != 0)
+	{
+		unsigned int result = 0;
+		cout << "Who wins the round" << endl;
+		cout << " 1 if " << Qualifying.front().name << Qualifying.front().rating << endl;
+		cout << " 2 if " << Qualifying.back().name << Qualifying.back().rating << endl;
+		cin >> result;
+		if (result == 1)
+		{
+			Playoff.push_back(*Qualifying.begin());
+		}
+		else if (result == 2)
+		{
+			Playoff.push_back(Qualifying.back());
+		}
+
+		if (abs(Qualifying.begin()->rating - Qualifying.back().rating) > ratingDifference)
+		{
+			Difference.clear();
+			Difference.push_back(*Qualifying.begin());
+			Difference.push_back(Qualifying.back());
+			ratingDifference = abs(Qualifying.begin()->rating - Qualifying.back().rating);
+		}
+
+		Qualifying.erase(Qualifying.begin());
+		Qualifying.pop_back();
+	}
+}
+
+void Seeding()
+{
+	vector<Player> Copy = Playoff;
+	sort(Copy.begin(), Copy.end(), compare);
+	Playoff.clear();
+	int s = size(Copy);
+
+	while (size(Playoff) < s)
+	{
+		Playoff.push_back(*Copy.begin());
+		Copy.erase(Copy.begin());
+		Playoff.push_back(Copy.back());
+		Copy.pop_back();
+		Playoff.push_back(*Copy.begin());
+		Copy.erase(Copy.begin());
+		Playoff.push_back(*Copy.begin());
+		Copy.erase(Copy.begin());
+	}
+}
+
+void DetermineWinners(int num, int startPos)
+{
+	vector<Player> Copy = Playoff;
+	unsigned int s = size(Copy);
+	for (int i = 0; i < startPos; i++)
+	{
+		Copy.erase(Copy.begin());
 	}
 
-	//Show(Tree);
-	cout << "------------------------" << endl;
-	Show1(Tree);
-	cout << "------------------------" << endl;
-	//Show2(Tree);
+	while (size(Playoff) < (s + num))
+	{
+		unsigned int result = 0;
+		cout << "Who wins the round" << endl;
+		cout << " 1 if " << Copy.at(0).name << Copy.at(0).rating << endl;
+		cout << " 2 if " << Copy.at(1).name << Copy.at(1).rating << endl;
+		cin >> result;
+		if (result == 1)
+		{
+			Playoff.push_back(Copy.at(0));
+		}
+		else if (result == 2)
+		{
+			Playoff.push_back(Copy.at(1));
+		}
+		Copy.erase(Copy.begin());
+		Copy.erase(Copy.begin());
+	}
+}
 
+int main()
+{
+	setlocale(LC_ALL, "RUS");
+	GetInputData();
+	Node* Tree = NULL;
 
-	GetNearestGrade(size(PlayersData));
+	vector<Player> Difference;
+	int ratingDifference = 0;
+	int counter = 4;
+	int startPos = 0;
+
+	GetQualifyingData();
+
+	for (vector<Player>::iterator it = PlayersData.begin(); it != PlayersData.end(); ++it)
+	{
+		cout << it->rating << endl;
+	}
+
+	cout << "----Qualifying----" << endl;
+
+	for (vector<Player>::iterator it = Qualifying.begin(); it != Qualifying.end(); ++it)
+	{
+		cout << it->rating << endl;
+	}
+
+	cout << "----Choose----" << endl;
+
+	SetPlayoffData(Difference, ratingDifference);
+
+	cout << "----Playoff----" << endl;
+	sort(Playoff.begin(), Playoff.end(), compare);
+	for (vector<Player>::iterator it = Playoff.begin(); it != Playoff.end(); ++it)
+	{
+		cout << it->name;
+		cout << it->rating << endl;
+	}
+
+	cout << "----Difference----" << endl;
+
+	cout << Difference.front().rating << Difference.front().name << endl;
+	cout << Difference.back().rating << Difference.back().name << endl;
+	cout << ratingDifference << endl;
+
+	cout << "----Seeding----" << endl;
+
+	Seeding();
+
+	cout << "----Seeded--Playoff----" << endl;
+
+	for (vector<Player>::iterator it = Playoff.begin(); it != Playoff.end(); ++it)
+	{
+		cout << it->name;
+		cout << it->rating << endl;
+	}
+
+	cout << "----Determiners ----" << endl;
+
+	DetermineWinners(counter, startPos);
+	while (size(Playoff) < GetMaxNumber(size(Playoff)))//here fix
+	{
+		startPos += size(Playoff);
+		DetermineWinners(counter, startPos);
+		counter = counter / 2;
+		cout << "--------" << counter << " " << startPos << endl;
+	}
+	
+	//DetermineWinners(counter, startPos);
+	//counter = counter / 2;
+	//startPos += size(Playoff);
+	//DetermineWinners(counter, startPos);
+
+	cout << "----Result 1 round----" << endl;
+
+	for (vector<Player>::iterator it = Playoff.begin(); it != Playoff.end(); ++it)
+	{
+		cout << it->name;
+		cout << it->rating << endl;
+	}
 
 	system("pause");
     return 0;

@@ -1,5 +1,7 @@
 #pragma once
 
+#define _USE_MATH_DEFINES
+
 #include <clocale>  
 #include <iostream>
 #include <algorithm>
@@ -7,6 +9,7 @@
 #include <fstream>
 #include <vector>
 #include <iterator>
+#include <math.h>
 
 using namespace std;
 
@@ -17,17 +20,40 @@ struct Player
 };
 
 vector<Player> PlayersData;
-vector<Player>::iterator it;
+vector<Player> Qualifying;
+vector<Player> Playoff;
+vector<Player> PlayoffSeeding;
 
 struct Node
 {
 	int level = 0;
-	string name;
-	int rating;
+	//string name;
+	//int rating;
+	Player player;
 	Node* left;
 	Node* right;
 };
 
+void TreeAdd(vector<Player>::iterator p, Node *&tree) //В функцию принимается записываемый элемент и указатель на ссылку на структуру.
+{
+	if (NULL == tree) //если ничего нет
+	{
+		tree = new Node; //выделяем память (как на огороде грядку вскопали почти)
+		tree->left = tree->right = NULL; //очищаем участки для роста
+		tree->player = *p;
+		cout << tree->player.rating << endl;
+	}
+	else if (NULL == tree->left)
+	{
+		TreeAdd(p, tree->left); //если слева участок не занят, создаем там подзвено
+	}
+	else
+	{
+		TreeAdd(p, tree->right); //если занят, создаем подзвено справа
+	}
+}
+
+/*
 void TreeAdd(vector<Player>::iterator p, Node *&tree) //В функцию принимается записываемый элемент и указатель на ссылку на структуру.
 {
 	if (NULL == tree) //если ничего нет
@@ -46,6 +72,7 @@ void TreeAdd(vector<Player>::iterator p, Node *&tree) //В функцию принимается за
 		TreeAdd(p, tree->right); //если занят, создаем подзвено справа
 	}
 }
+*/
 
 /*СИММЕТРИЧНЫЙ ОБХОД*/
 void Show(Node *&tree)
@@ -53,8 +80,8 @@ void Show(Node *&tree)
 	if (NULL == tree)    return;    //Если дерева нет, выходим
 
 	Show(tree->left); //Обошли левое поддерево 
-	cout << tree->name; //Посетили узел
-	cout << tree->rating << endl;
+	//cout << tree->name; //Посетили узел
+	//cout << tree->rating << endl;
 	Show(tree->right); //Обошли правое поддерево   
 }
 
@@ -62,8 +89,8 @@ void Show(Node *&tree)
 void Show1(Node *&tree)
 {
 	if (NULL == tree)    return;    //Если дерева нет, выходим
-	cout << tree->name; //Посетили узел
-	cout << tree->rating << endl;
+	//cout << tree->name; //Посетили узел
+	//cout << tree->rating << endl;
 	Show(tree->left); //Обошли левое поддерево   
 	Show(tree->right); //Обошли правое поддерево   
 }
@@ -75,6 +102,6 @@ void Show2(Node *&tree)
 
 	Show(tree->left); //Обошли левое поддерево 
 	Show(tree->right); //Обошли правое поддерево  
-	cout << tree->name; //Посетили узел
-	cout << tree->rating << endl;
+	//cout << tree->name; //Посетили узел
+	//cout << tree->rating << endl;
 }

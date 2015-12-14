@@ -11,9 +11,8 @@ using namespace sf;
 
 static const Vector2i WINDOW_SIZE = { 800, 600 };
 
-static const Time FPS_LIMIT = seconds(1.f / 60.f);
+static const float ACCELERATION = 0.00005f;
 
-static const float ACCELERATION = 0.1f;
 static const float MAX_SPEED = 4;
 
 static const float WHEEL_RADIUS = 19.5f;

@@ -1,4 +1,4 @@
-#include "program.h"
+#include "car.h"
 
 void InitCar(Car& myCar)
 {
@@ -28,44 +28,36 @@ void InitCar(Car& myCar)
 	myCar.carSprite.setPosition(200, WINDOW_SIZE.y * 2 / 3 - 5);
 	myCar.rightWheel.setPosition(float(myCar.carSprite.getPosition().x + RIGHT_WHEEL_POS.x), float(myCar.carSprite.getPosition().y - RIGHT_WHEEL_POS.y));
 	myCar.leftWheel.setPosition(float(myCar.carSprite.getPosition().x - LEFT_WHEEL_POS.x), float(myCar.carSprite.getPosition().y - LEFT_WHEEL_POS.y));
-
-	//backgroung
-	myCar.background.setSize(Vector2f(WINDOW_SIZE.x, WINDOW_SIZE.y * 2 / 3));
-	myCar.background.setPosition(Vector2f(0, 0));
-	myCar.background.setFillColor(Color(155, 255, 255));
-	myCar.ground.setSize(Vector2f(WINDOW_SIZE.x, WINDOW_SIZE.y * 1 / 3));
-	myCar.ground.setPosition(Vector2f(0, WINDOW_SIZE.y * 2 / 3));
-	myCar.ground.setFillColor(Color(80, 70, 70));
 }
 
-void SetRotation(Car& myCar)
+void UpdateRotation(Car& myCar)
 {
 	myCar.rightWheel.rotate(float(float(180 * myCar.speed) / (M_PI * WHEEL_RADIUS)));
 	myCar.leftWheel.rotate(float(float(180 * myCar.speed) / (M_PI * WHEEL_RADIUS)));
 }
 
-void SetSpeed(Car& myCar)
+void UpdateSpeed(Car& myCar, float time)
 {
 	if (myCar.carSprite.getPosition().x < WINDOW_SIZE.x / 2)
 	{
-		myCar.speed += ACCELERATION;
+		myCar.speed += ACCELERATION * time;
 	}
 	else
 	{
-		myCar.speed -= ACCELERATION;
+		myCar.speed -= ACCELERATION* time;
 	}
 }
 
-void SetCarsPosition(Car& myCar)
+void UpdateCarsPosition(Car& myCar)
 {
 	myCar.carSprite.move(myCar.speed, 0);
 	myCar.leftWheel.setPosition(float(myCar.carSprite.getPosition().x - LEFT_WHEEL_POS.x), float(myCar.carSprite.getPosition().y - LEFT_WHEEL_POS.y));
 	myCar.rightWheel.setPosition(float(myCar.carSprite.getPosition().x + RIGHT_WHEEL_POS.x), float(myCar.carSprite.getPosition().y - RIGHT_WHEEL_POS.y));
 }
 
-void UpdateCar(Car& myCar)
+void UpdateCar(Car& myCar, float time)
 {
-	SetSpeed(myCar);
-	SetCarsPosition(myCar);
-	SetRotation(myCar);
+	UpdateSpeed(myCar, time);
+	UpdateCarsPosition(myCar);
+	UpdateRotation(myCar);
 }

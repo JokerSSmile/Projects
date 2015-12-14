@@ -1,5 +1,7 @@
 #pragma once
 
+#include <iomanip>
+
 #define _USE_MATH_DEFINES
 
 #include <clocale>  
@@ -23,85 +25,71 @@ vector<Player> PlayersData;
 vector<Player> Qualifying;
 vector<Player> Playoff;
 vector<Player> PlayoffSeeding;
+vector<Player> Final;
+
+vector<Player> Sensations;
+vector<Player> MaxSensation;
+
+bool isNumDegreeOfTwo(int num)
+{
+	for (unsigned int i = 2; i < 1000; i = i * 2)
+	{
+		if (num == i)
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
+int cnt_digits(int num) { return (num /= 10) ? 1 + cnt_digits(num) : 1; }
 
 struct Node
 {
-	int level = 0;
-	//string name;
-	//int rating;
 	Player player;
 	Node* left;
 	Node* right;
 };
 
-void TreeAdd(vector<Player>::iterator p, Node *&tree) //В функцию принимается записываемый элемент и указатель на ссылку на структуру.
+void TreeAdd(vector<Player>::iterator p, Node *&tree)
 {
 	if (NULL == tree) //если ничего нет
 	{
-		tree = new Node; //выделяем память (как на огороде грядку вскопали почти)
-		tree->left = tree->right = NULL; //очищаем участки для роста
+		tree = new Node;
+		tree->left = NULL;
+		tree->right = NULL;
 		tree->player = *p;
-		cout << tree->player.rating << endl;
 	}
 	else if (NULL == tree->left)
 	{
-		TreeAdd(p, tree->left); //если слева участок не занят, создаем там подзвено
+		TreeAdd(p, tree->left);
 	}
 	else
 	{
-		TreeAdd(p, tree->right); //если занят, создаем подзвено справа
+		TreeAdd(p, tree->right);
 	}
 }
 
-/*
-void TreeAdd(vector<Player>::iterator p, Node *&tree) //В функцию принимается записываемый элемент и указатель на ссылку на структуру.
-{
-	if (NULL == tree) //если ничего нет
-	{
-		tree = new Node; //выделяем память (как на огороде грядку вскопали почти)
-		tree->left = tree->right = NULL; //очищаем участки для роста
-		tree->name = p->name; //записали в звено данные
-		tree->rating = p->rating;
-	}
-	else if (NULL == tree->left)
-	{
-		TreeAdd(p, tree->left); //если слева участок не занят, создаем там подзвено
-	}
-	else
-	{
-		TreeAdd(p, tree->right); //если занят, создаем подзвено справа
-	}
-}
-*/
-
-/*СИММЕТРИЧНЫЙ ОБХОД*/
-void Show(Node *&tree)
+void Show(Node*& tree, ofstream& out, int& level, int& counter, int& degree)
 {
 	if (NULL == tree)    return;    //Если дерева нет, выходим
+	counter++;
 
-	Show(tree->left); //Обошли левое поддерево 
-	//cout << tree->name; //Посетили узел
-	//cout << tree->rating << endl;
-	Show(tree->right); //Обошли правое поддерево   
-}
+	int strLength = size(tree->player.name) + cnt_digits(tree->player.rating);
 
-/*ОБХОД В ПРЯМОМ ПОРЯДКЕ*/
-void Show1(Node *&tree)
-{
-	if (NULL == tree)    return;    //Если дерева нет, выходим
-	//cout << tree->name; //Посетили узел
-	//cout << tree->rating << endl;
-	Show(tree->left); //Обошли левое поддерево   
-	Show(tree->right); //Обошли правое поддерево   
-}
-
-/*ОБРАТНЫЙ ОБХОД*/
-void Show2(Node *&tree)
-{
-	if (NULL == tree)    return;    //Если дерева нет, выходим
-
-	Show(tree->left); //Обошли левое поддерево 
-	Show(tree->right); //Обошли правое поддерево  
-	//cout << tree->name; //Посетили узел
-	//cout << tree->rating << endl;
+	if (isNumDegreeOfTwo(counter))
+	{
+		level++;
+		degree--;
+		out << endl;
+	}
+	for (int i = 0; i < degree; i++)
+	{
+		char star = '  ';
+		out << string((strLength * degree) / 8, star);
+	}
+	out << tree->player.rating << " ";
+	out << tree->player.name;
+	Show(tree->left, out, level, counter, degree);  
+	Show(tree->right, out, level, counter, degree); 
 }

@@ -37,14 +37,16 @@ enum DoorPosition
 	NOTDOOR, UP, DOWN, LEFT, RIGHT
 };
 
-struct 
+struct Map
 {
 	int x;
 	int y;
 	Sprite sprite;
 	DoorPosition pos;
 	String TileMap;
-}mapStruct[SIZE_MAP_STRUCT];
+};
+
+vector<Map> myMap;
 
 struct tileMap
 {
@@ -54,9 +56,12 @@ public:
 	Image rockImage;
 	Texture rockTexture;
 	Sprite rockSprite;
-	Image doorImage;
-	Texture doorTexture;
-	Sprite doorSprite;
+	Image closedDoorImage;
+	Texture closedDoorTexture;
+	Sprite closedDoorSprite;
+	Image openedDoorImage;
+	Texture openedDoorTexture;
+	Sprite openedDoorSprite;
 
 	void LoadMapSprites()
 	{
@@ -65,14 +70,32 @@ public:
 		rockTexture.loadFromImage(rockImage);
 		rockSprite.setTexture(rockTexture);
 
-		//door
-		doorImage.loadFromFile("images/Door.png");
-		doorTexture.loadFromImage(doorImage);
-		doorSprite.setTexture(doorTexture);
-		doorSprite.setScale(2, 2);
+		//closed door
+		closedDoorImage.loadFromFile("images/Door.png");
+		closedDoorTexture.loadFromImage(closedDoorImage);
+		closedDoorSprite.setTexture(closedDoorTexture);
+		closedDoorSprite.setScale(2, 2);
+
+		//opened door
+		openedDoorImage.loadFromFile("images/openedDoor.png");
+		openedDoorTexture.loadFromImage(openedDoorImage);
+		openedDoorSprite.setTexture(openedDoorTexture);
+		openedDoorSprite.setScale(2, 2);
 	}
 
-	void drawMap(RenderWindow & window)
+	void setDoorType(bool isLevelClear, Map& map)
+	{
+		if (isLevelClear == false)
+		{
+			map.sprite = closedDoorSprite;
+		}
+		else
+		{
+			map.sprite = openedDoorSprite;
+		}
+	}
+
+	void drawMap(RenderWindow & window, bool isLevelClear)
 	{
 		if (isMapSpritesLoaded == false)
 		{
@@ -82,87 +105,97 @@ public:
 
 		int counter = 0;
 
+		myMap.clear();
+
+		Map map;
+
 		for (int i = 0; i < HEIGHT_MAP; i++)
 		{
 			for (int j = 0; j < WIDTH_MAP; j++)
 			{
 				if (mapString[i][j] == 's')
 				{
-					mapStruct[counter].y = i * TILE_SIDE;
-					mapStruct[counter].x = j * TILE_SIDE;
-					mapStruct[counter].sprite = rockSprite;
+					map.y = i * TILE_SIDE;
+					map.x = j * TILE_SIDE;
+					map.sprite = rockSprite;
+					map.pos = NOTDOOR;
+					myMap.push_back(map);
 					counter++;
 				}
+				
 				else if (mapString[i][j] == 'u')
 				{
-					mapStruct[counter].y = i * TILE_SIDE - TILE_SIDE;
-					mapStruct[counter].x = j * TILE_SIDE;
-					mapStruct[counter].sprite = doorSprite;
-					mapStruct[counter].pos = UP;
+					setDoorType(isLevelClear, map);
+					map.y = i * TILE_SIDE - TILE_SIDE;
+					map.x = j * TILE_SIDE - TILE_SIDE / 2;
+					map.pos = UP;
+					myMap.push_back(map);
 					counter++;
 				}
 				else if (mapString[i][j] == 'd')
 				{
-					mapStruct[counter].y = i * TILE_SIDE;
-					mapStruct[counter].x = j * TILE_SIDE;
-					mapStruct[counter].sprite = doorSprite;
-					mapStruct[counter].pos = DOWN;
+					setDoorType(isLevelClear, map);
+					map.y = i * TILE_SIDE;
+					map.x = j * TILE_SIDE - TILE_SIDE / 2;
+					map.pos = DOWN;
+					myMap.push_back(map);
 					counter++;
 				}
 				else if (mapString[i][j] == 'r')
 				{
-					mapStruct[counter].y = i * TILE_SIDE;
-					mapStruct[counter].x = j * TILE_SIDE;
-					mapStruct[counter].sprite = doorSprite;
-					mapStruct[counter].pos = RIGHT;
+					setDoorType(isLevelClear, map);
+					map.y = i * TILE_SIDE;
+					map.x = j * TILE_SIDE;
+					map.pos = RIGHT;
+					myMap.push_back(map);
 					counter++;
 				}
 				else if (mapString[i][j] == 'l')
 				{
-					mapStruct[counter].y = i * TILE_SIDE;
-					mapStruct[counter].x = j * TILE_SIDE - TILE_SIDE;
-					mapStruct[counter].sprite = doorSprite;
-					mapStruct[counter].pos = LEFT;
+					setDoorType(isLevelClear, map);
+					map.y = i * TILE_SIDE;
+					map.x = j * TILE_SIDE - TILE_SIDE;
+					map.pos = LEFT;
+					myMap.push_back(map);
 					counter++;
-				}
+				}			
 			}
 		}
-
 		drawTiles(window);
 	}
 
 	void drawTiles(RenderWindow & window)
 	{
-		for (int i = 0; i < SIZE_MAP_STRUCT; i++)
+		for (vector<Map>::iterator it = myMap.begin(); it != myMap.end(); ++it)
 		{
-			if (mapStruct[i].pos == 0)
+			if (it->pos == 0)
 			{
-				mapStruct[i].sprite.setPosition(mapStruct[i].x, mapStruct[i].y);
+				it->sprite.setPosition(it->x, it->y);
 			}
 			else
 			{
-				if (mapStruct[i].pos == UP)
+				if (it->pos == UP)
 				{
-					mapStruct[i].sprite.setTextureRect(IntRect(0, 0, 64, 64));
-					mapStruct[i].sprite.setPosition(mapStruct[i].x, mapStruct[i].y);
+					it->sprite.setTextureRect(IntRect(0, 0, 64, 64));
+					it->sprite.setPosition(it->x, it->y);
 				}
-				else if (mapStruct[i].pos == DOWN)
+				else if (it->pos == DOWN)
 				{
-					mapStruct[i].sprite.setTextureRect(IntRect(64, 0, 64, 64));
-					mapStruct[i].sprite.setPosition(mapStruct[i].x, mapStruct[i].y);
+					it->sprite.setTextureRect(IntRect(64, 0, 64, 64));
+					it->sprite.setPosition(it->x, it->y);
 				}
-				else if (mapStruct[i].pos == LEFT)
+				else if (it->pos == LEFT)
 				{
-					mapStruct[i].sprite.setTextureRect(IntRect(192, 0, 64, 64));
-					mapStruct[i].sprite.setPosition(mapStruct[i].x, mapStruct[i].y);
+					it->sprite.setTextureRect(IntRect(192, 0, 64, 64));
+					it->sprite.setPosition(it->x, it->y);
 				}
-				else if (mapStruct[i].pos == RIGHT)
+				else if (it->pos == RIGHT)
 				{
-					mapStruct[i].sprite.setTextureRect(IntRect(128, 0, 64, 64));
-					mapStruct[i].sprite.setPosition(mapStruct[i].x, mapStruct[i].y);
+					it->sprite.setTextureRect(IntRect(128, 0, 64, 64));
+					it->sprite.setPosition(it->x, it->y);
 				}
 			}
-			window.draw(mapStruct[i].sprite);
+			window.draw(it->sprite);
 		}
 	}
 };

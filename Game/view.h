@@ -9,7 +9,6 @@ View view;
 
 void GetPlayerCoordinateForView(float x, float y)
 {
-	cout << "2341243" << endl;
 	float tempX = x; float tempY = y;//считываем коорд игрока и проверяем их, чтобы убрать края
 
 	if (x < 480) tempX = 480;//убираем из вида левую сторону

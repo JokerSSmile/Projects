@@ -6,7 +6,7 @@ using namespace std;
 
 const int TIME_BETWEEN_SHOOT_ENEMY_STAND = 1;
 
-struct Enemies:
+struct Enemy:
 	public Character
 {
 private:
@@ -20,8 +20,8 @@ public:
 	int level = 0;
 	float lastShootEnemyStand = 0;
 	float damage = 0.5;
-	Enemies() {};
-	Enemies(Image & image, float X, float Y, int W, int H, String Name, float Health, int Level) :Character(image, X, Y, w, h, Name, health)
+	Enemy() {};
+	Enemy(Texture & image, float X, float Y, int W, int H, String Name, float Health, int Level) :Character(image, X, Y, w, h, Name, health)
 	{
 		w = W;
 		h = H;
@@ -124,22 +124,17 @@ public:
 
 	void Shoot(float gameTime, int dir, int bulletStartX, int bulletStartY)
 	{
-		for (int i = 0; i <= SIZE_BULLETS; i++)
-		{
-			if (bullets[i].life == false)
-			{
-				bullets[i].isPlayers = false;
-				bullets[i].life = true;
-				bullets[i].x = bulletStartX;
-				bullets[i].y = bulletStartY;
-				bullets[i].timeShot = gameTime;
-				bullets[i].direction = dir;
-				bullets[i].speed = 0.2;
-				bullets[i].damage = damage;
-				lastShootEnemyStand = bullets[i].timeShot;
-				break;
-			}
-		}
+		Bullet bullet;
+		bullet.isPlayers = false;
+		bullet.life = true;
+		bullet.x = bulletStartX;
+		bullet.y = bulletStartY;
+		bullet.timeShot = gameTime;
+		bullet.direction = dir;
+		bullet.speed = 0.2;
+		bullet.damage = damage;
+		lastShootEnemyStand = bullet.timeShot;
+		bullets.push_back(bullet);
 	}
 
 
@@ -182,4 +177,4 @@ public:
 		}
 	}
 	
-}enemies[SIZE_ENEMIES];
+};

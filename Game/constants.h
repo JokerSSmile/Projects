@@ -3,6 +3,7 @@ const float PLAYER_POSITION_X = 250;
 const float PLAYER_POSITION_Y = 200;
 const int PLAYER_WIDTH = 36;
 const int PLAYER_HEIGHT = 26;
+const float MAX_PLAYER_HEALTH = 6;
 
 //enemies
 const int SIZE_ENEMIES = 10;

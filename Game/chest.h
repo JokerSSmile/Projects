@@ -29,13 +29,14 @@ public:
 	Sprite chestSpriteOpened;
 	Sprite chestSpriteClosed;
 	Sprite increaseSpeedSprite;
-	Sprite IncreaseDamageSprite;
-	Sprite HealthSprite;
-	Sprite BombSprite;
+	Sprite increaseDamageSprite;
+	Sprite healthSprite;
+	Sprite bombSprite;
 
 	bool isOpened = false;
 	int present;
 	bool areTexturesLoaded = false;
+	bool isPresentTaken = false;
 	Chest() {};
 	Chest(float X, float Y, int Level)
 	{
@@ -59,9 +60,19 @@ public:
 			BombTexture.loadFromFile("images/addBomb.png");
 
 			increaseSpeedSprite.setTexture(increaseSpeedTexture);
-			IncreaseDamageSprite.setTexture(IncreaseDamageTexture);
-			HealthSprite.setTexture(HealthTexture);
-			BombSprite.setTexture(BombTexture);
+			increaseDamageSprite.setTexture(IncreaseDamageTexture);
+			healthSprite.setTexture(HealthTexture);
+			bombSprite.setTexture(BombTexture);
+
+			increaseSpeedSprite.setOrigin(increaseSpeedSprite.getGlobalBounds().width / 2, increaseSpeedSprite.getGlobalBounds().height / 2);
+			increaseDamageSprite.setOrigin(increaseDamageSprite.getGlobalBounds().width / 2, increaseDamageSprite.getGlobalBounds().height / 2);
+			healthSprite.setOrigin(healthSprite.getGlobalBounds().width / 2, healthSprite.getGlobalBounds().height / 2);
+			bombSprite.setOrigin(bombSprite.getGlobalBounds().width / 2, bombSprite.getGlobalBounds().height / 2);
+
+			increaseSpeedSprite.setScale(1.5, 1.5);
+			increaseDamageSprite.setScale(1.5, 1.5);
+			healthSprite.setScale(1.5, 1.5);
+			bombSprite.setScale(1.5, 1.5);
 
 			areTexturesLoaded = true;
 		}
@@ -101,36 +112,69 @@ public:
 		}
 	}
 
-	void GiveFirstPresent()
+	void GiveFirstPresent(RenderWindow& window)
 	{
-		//cout << "1" << endl;
-		
+		increaseSpeedSprite.setPosition(x, y + TILE_SIDE / 2);
+		window.draw(increaseSpeedSprite);
 	}
 
-	void GiveSecondPresent()
+	void GiveSecondPresent(RenderWindow& window)
 	{
-		//cout << "2" << endl;
+		increaseDamageSprite.setPosition(x, y + TILE_SIDE / 2);
+		window.draw(increaseDamageSprite);
 	}
 
-	void GiveThirdPresent()
+	void GiveThirdPresent(RenderWindow& window)
 	{
-		//cout << "3" << endl;
+		healthSprite.setPosition(x, y + TILE_SIDE / 2);
+		window.draw(healthSprite);
 	}
 
-	void GiveForhPresent()
+	void GiveForthPresent(RenderWindow& window)
 	{
-		//cout << "4" << endl;
+		bombSprite.setPosition(x, y + TILE_SIDE / 2);
+		window.draw(bombSprite);
 	}
 
-	void SetPresent()
+	void SetPresent(RenderWindow& window)
 	{
-		SetFilling();
 		switch (filling)
 		{
-		case IncreaseSpeed: GiveFirstPresent(); break;
-		case IncreaseDamage: GiveSecondPresent(); break;
-		case Health: GiveThirdPresent(); break;
-		case Bomb: GiveForhPresent(); break;
+		case IncreaseSpeed: GiveFirstPresent(window); break;
+		case IncreaseDamage: GiveSecondPresent(window); break;
+		case Health: GiveThirdPresent(window); break;
+		case Bomb: GiveForthPresent(window); break;
+		}
+	}
+
+	void CheckCollisionWithPresent(Player& p)
+	{
+		if (Collision::PixelPerfectTest(p.sprite, increaseSpeedSprite))
+		{
+			isPresentTaken = true;
+			p.speed += 0.05;
+		}
+		else if (Collision::PixelPerfectTest(p.sprite, increaseDamageSprite))
+		{
+			isPresentTaken = true;
+			p.damage += 0.5;
+		}
+		else if (Collision::PixelPerfectTest(p.sprite, healthSprite))
+		{
+			isPresentTaken = true;
+			if (p.health >= MAX_PLAYER_HEALTH - 1)
+			{
+				p.health = MAX_PLAYER_HEALTH;
+			}
+			else
+			{
+				p.health += 1;
+			}
+		}
+		else if (Collision::PixelPerfectTest(p.sprite, bombSprite))
+		{
+			isPresentTaken = true;
+			p.bombCount += 1;
 		}
 	}
 
@@ -141,7 +185,7 @@ public:
 		LoadTextures();
 		if (isOpened == false)
 		{
-			SetPresent();
+			SetFilling();
 			chestSpriteClosed.setPosition(x - w / 2, y - h / 2);
 			CheckOpening(p);
 			window.draw(chestSpriteClosed);
@@ -150,7 +194,11 @@ public:
 		{
 			chestSpriteOpened.setPosition(x - w / 2, y - h / 2);
 			window.draw(chestSpriteOpened);
+			if (isPresentTaken == false)
+			{
+				SetPresent(window);
+				CheckCollisionWithPresent(p);
+			}
 		}
-		window.draw(BombSprite);
 	}
 };

@@ -4,7 +4,7 @@
 const int SIZE_BULLETS = 50;
 const float LIFE_TIME = 1;
 
-struct Bullets
+struct Bullet
 {
 private:
 	float dy;
@@ -92,4 +92,6 @@ public:
 		}
 	}
 
-}bullets[SIZE_BULLETS];
+};
+
+vector<Bullet> bullets;

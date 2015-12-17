@@ -16,7 +16,7 @@ public:
 	Sprite sprite;
 	String name;
 	Character() {};
-	Character(Image & image, float X, float Y, int W, int H, String Name, float Health)
+	Character(Texture & texture, float X, float Y, int W, int H, String Name, float Health)
 	{
 		x = X;
 		y = Y;
@@ -28,7 +28,6 @@ public:
 		dx = 0;
 		dy = 0;
 		life = true;
-		texture.loadFromImage(image);
 		sprite.setTexture(texture);
 	}
 };

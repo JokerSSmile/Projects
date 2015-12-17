@@ -8,6 +8,7 @@
 #include "player.h"
 #include "enemy.h"
 #include "chest.h"
+#include "sprites.h"
 
 
 using namespace sf;
@@ -63,10 +64,18 @@ int InitializeLevel(Player & player)
 	}
 }
 
+void ProcessEvents(RenderWindow& window)
+{
+	Event event;
+	while (window.pollEvent(event))
+	{
+		if (event.type == Event::Closed)
+			window.close();
+	}
+}
+
 void DrawPlayersHealth(float health, RenderWindow & window, View & view)
 {
-	int i;
-
 	Texture heartTexture;
 	heartTexture.loadFromFile("images/hearts.png");
 	Sprite fullHP;
@@ -80,14 +89,14 @@ void DrawPlayersHealth(float health, RenderWindow & window, View & view)
 
 	if (health > 0)
 	{
-		for (i = 1; i <= health; i += 1)
+		for (int i = 1; i <= health; i += 1)
 		{
 			fullHP.setPosition(view.getCenter().x - WINDOW_WIDTH / 2 + i * 35, view.getCenter().y - WINDOW_HEIGHT / 2 + 10);
 			window.draw(fullHP);
 		}
 		if (health - int(health) != 0)
 		{
-			halfHP.setPosition(view.getCenter().x - WINDOW_WIDTH / 2 + i * 35, view.getCenter().y - WINDOW_HEIGHT / 2 + 10);
+			halfHP.setPosition(view.getCenter().x - WINDOW_WIDTH / 2 + int(health + 1) * 35, view.getCenter().y - WINDOW_HEIGHT / 2 + 10);
 			window.draw(halfHP);
 		}
 	}
@@ -104,73 +113,73 @@ void DrawBackground(RenderWindow & window, Sprite & wallBackgroundSprite, Sprite
 	window.draw(floorBackgroundSprite);
 }
 
-void CheckEnemyCollidesPlayer(float& gameTime, float& hitTimer, Player& p, Enemies enemies[10])
+void CheckEnemyCollidesPlayer(float& gameTime, float& hitTimer, Player& p, vector<Enemy>& enemies)
 {
 	//check colisions enemies with player
-	for (int i = 0; i < SIZE_ENEMIES; i++)
+	for (vector<Enemy>::iterator it = enemies.begin();it != enemies.end(); ++it)
 	{
-		if (p.sprite.getGlobalBounds().contains(enemies[i].x + (enemies[i].sprite.getGlobalBounds().width / 2), enemies[i].y + (enemies[i].sprite.getGlobalBounds().height / 2)))
+		if (p.sprite.getGlobalBounds().contains(it->x + (it->sprite.getGlobalBounds().width / 2), it->y + (it->sprite.getGlobalBounds().height / 2)))
 		{
 			if (gameTime > hitTimer + 1 || hitTimer == 0)
 			{
-				p.health -= 0.5;
+				p.health -= enemies[0].damage;
 				hitTimer = gameTime;
 			}
 		}
 	}
 }
 
-void CheckBulletsCollisionWithEntities(Player& p, Enemies enemies[SIZE_ENEMIES], float gameTime, Bullets bullets[SIZE_BULLETS], float& time, RenderWindow& window, Texture& bulletTexture)
+void UpdateBullets(Player& p, vector<Enemy>& enemies, float gameTime, vector<Bullet>& bullets, float& time, RenderWindow& window, Sprites& mySprite)//Texture& bulletTexture)
 {
 	//going through bullets mass and delete/update it. Check collisions with player, enemies
-	for (int i = 0; i < SIZE_BULLETS; i++)
+	for (vector<Bullet>::iterator it1 = bullets.begin();it1 != bullets.end(); ++it1)
 	{
-		if (bullets[i].life == true)
+		if (it1->life == true)
 		{
-			for (int k = 0; k < SIZE_ENEMIES; k++)
+			for (vector<Enemy>::iterator it = enemies.begin();it != enemies.end(); ++it)
 			{
-				if (enemies[k].health > 0)
+				if (it->health > 0)
 				{
-					if (bullets[i].isPlayers == true)
+					if (it1->isPlayers == true)
 					{
-						if (enemies[k].sprite.getGlobalBounds().contains(bullets[i].x + BULLET_SIDE / 2, bullets[i].y + BULLET_SIDE / 2))
+						if (it->sprite.getGlobalBounds().contains(it1->x + BULLET_SIDE / 2, it1->y + BULLET_SIDE / 2))
 						{
-							bullets[i].life = false;
-							enemies[k].health -= p.damage;
+							it1->life = false;
+							it->health -= p.damage;
 						}
 					}
 				}
 			}
-			if (bullets[i].isPlayers == false)
+			if (it1->isPlayers == false)
 			{
-				if (p.sprite.getGlobalBounds().contains(bullets[i].x + BULLET_SIDE / 2, bullets[i].y + BULLET_SIDE / 2))
+				if (p.sprite.getGlobalBounds().contains(it1->x + BULLET_SIDE / 2, it1->y + BULLET_SIDE / 2))
 				{
-					bullets[i].life = false;
-					bullets[i].isPlayers = false;
-					p.health -= enemies[i].damage;
+					it1->life = false;
+					it1->isPlayers = false;
+					p.health -= enemies[0].damage;
 				}
 			}
-			bullets[i].Update(time, window, gameTime, bulletTexture);
-			bullets[i].DeleteBullet(gameTime);
+			it1->Update(time, window, gameTime, mySprite.bulletTexture);
+			it1->DeleteBullet(gameTime);
 		}
 	}
 }
 
-void DrawEnemies(RenderWindow& window, int& level, Enemies enemies[SIZE_ENEMIES])
+void DrawEnemies(RenderWindow& window, int& level, vector<Enemy>& enemies)
 {
-	for (int i = 0; i < SIZE_ENEMIES; i++)
+	for (vector<Enemy>::iterator it = enemies.begin();it != enemies.end(); ++it)
 	{
-		if (enemies[i].health > 0)
+		if (it->health > 0)
 		{
-			if (enemies[i].level == level)
+			if (it->level == level)
 			{
-				window.draw(enemies[i].sprite);
+				window.draw(it->sprite);
 			}
 		}
 		else
 		{
-			enemies[i].x = 0;
-			enemies[i].y = 0;
+			it->x = 0;
+			it->y = 0;
 		}
 	}
 }
@@ -184,27 +193,27 @@ void DrawPlayer(Player& p, RenderWindow& window)
 	}
 }
 
-void UpdateEnemies(Enemies enemies[SIZE_ENEMIES], float& time, float& gameTime, RenderWindow& window, int& level)
+void UpdateEnemies(vector<Enemy>& enemies, float& time, float& gameTime, RenderWindow& window, int& level)
 {
 	//enemy update
-	for (int i = 0; i < SIZE_ENEMIES; i++)
+	for (vector<Enemy>::iterator it = enemies.begin();it != enemies.end(); ++it)
 	{
-		if (enemies[i].health > 0)
+		if (it->health > 0)
 		{
-			enemies[i].Update(time, gameTime, window, level);
+			it->Update(time, gameTime, window, level);
 		}
 	}
 }
 
-bool IsLevelCleared(int& level, Enemies enemies[SIZE_ENEMIES])
+bool IsLevelCleared(int& level, vector<Enemy>& enemies)
 {
 	bool isAllDead = true;
 
-	for (int i = 0; i < SIZE_ENEMIES; i++)
+	for (vector<Enemy>::iterator it = enemies.begin();it != enemies.end(); ++it)
 	{
-		if (enemies[i].level == level)
+		if (it->level == level)
 		{
-			if (enemies[i].health > 0)
+			if (it->health > 0)
 			{
 				isAllDead = false;
 			}
@@ -213,13 +222,13 @@ bool IsLevelCleared(int& level, Enemies enemies[SIZE_ENEMIES])
 	return isAllDead;
 }
 
-bool IsRoomEmpty(int& level, Enemies enemies[SIZE_ENEMIES])
+bool IsRoomEmpty(int& level, vector<Enemy>& enemies)
 {
 	bool isEmpty = true;
 
-	for (int i = 0; i < SIZE_ENEMIES; i++)
+	for (vector<Enemy>::iterator it = enemies.begin();it != enemies.end(); ++it)
 	{
-		if (enemies[i].level == level)
+		if (it->level == level)
 		{
 			isEmpty = false;
 		}
@@ -244,7 +253,7 @@ bool IsChestInRoom(vector<Chest> chests, int& level)
 	return isChestInRoom;
 }
 
-void AddChest(int& level, vector<Chest>& chests, Enemies enemies[SIZE_ENEMIES])
+void AddChest(int& level, vector<Chest>& chests, vector<Enemy>& enemies)
 {
 	if (IsLevelCleared(level, enemies) && !IsRoomEmpty(level, enemies))
 	{
@@ -260,65 +269,36 @@ void UpdateChests(vector<Chest>& chests, RenderWindow& window, Player& p)
 	for (vector<Chest>::iterator chest = chests.begin(); chest != chests.end(); ++chest)
 	{
 		chest->Update(window, p);
-		//cout << chest->filling << endl;
 	}
 }
 
-int main()
+void InitEnemies(vector<Enemy>& enemies, Sprites& mySprites)
 {
+	enemies.push_back(Enemy(mySprites.enemyTexture, FLY1_POSITION_X, FLY1_POSITION_Y, FLY_WIDTH, FLY_HEIGHT, "EnemyFly", 1, 1));
+	enemies.push_back(Enemy(mySprites.enemyTexture, FLY2_POSITION_X, FLY2_POSITION_Y, FLY_WIDTH, FLY_HEIGHT, "EnemyFly", 1, 1));
+	enemies.push_back(Enemy(mySprites.standAndShootTexture, 1400, 400, 38, 43, "EnemyStandAndShoot", 3, 2));
+	enemies.push_back(Enemy(mySprites.standAndShootTexture, 1500, 400, 38, 43, "EnemyStandAndShoot", 3, 2));
+	enemies.push_back(Enemy(mySprites.standAndShootTexture, 1300, 400, 38, 43, "EnemyStandAndShoot", 3, 2));
+}
 
+void StartGame()
+{
 	//players last shoot time
 	float lastShootPlayer = 0;
 
 	//map struct
 	tileMap myMap;
-	
-	//background wall
-	Image wallBackground;
-	wallBackground.loadFromFile("images/walls.png");
-	Texture wallBackgroundTexture;
-	wallBackgroundTexture.loadFromImage(wallBackground);
-	Sprite wallBackgroundSprite;
-	wallBackgroundSprite.setTexture(wallBackgroundTexture);
 
-	//background floor
-	Image floorBackground;
-	floorBackground.loadFromFile("images/floor.png");
-	Texture floorBackgroundTexture;
-	floorBackgroundTexture.loadFromImage(floorBackground);
-	Sprite floorBackgroundSprite;
-	floorBackgroundSprite.setTexture(floorBackgroundTexture);
-
-	//hero
-	Image heroImage;
-	heroImage.loadFromFile("images/body_1.png");
-
-	//enemy image
-	Image enemyImage;
-	enemyImage.loadFromFile("images/fly.png");
-
-	//standAndShoot
-	Image standAndShootImage;
-	standAndShootImage.loadFromFile("images/StandAndShoot.png");
-
-	//bullets
-	Texture bulletTexture;
-	bulletTexture.loadFromFile("images/bullets.png");
-
-	//mass of enemies
-	Enemies enemies[10] =
-	{
-		{ enemyImage, FLY1_POSITION_X, FLY1_POSITION_Y, FLY_WIDTH, FLY_HEIGHT, "EnemyFly", 1, 1 },
-		{ enemyImage, FLY2_POSITION_X, FLY2_POSITION_Y, FLY_WIDTH, FLY_HEIGHT, "EnemyFly", 1, 1 },
-		{ standAndShootImage, 1400, 400, 38, 43, "EnemyStandAndShoot", 3, 2 },
-		{ standAndShootImage, 1500, 400, 38, 43, "EnemyStandAndShoot", 3, 2 },
-		{ standAndShootImage, 1300, 400, 38, 43, "EnemyStandAndShoot", 3, 2 }
-	};
-	
-	//create player
-	Player p(heroImage, PLAYER_POSITION_X, PLAYER_POSITION_Y, PLAYER_WIDTH, PLAYER_HEIGHT, "Hero", 6);
+	Sprites mySprites;
+	mySprites.InitImages();
 
 	vector<Chest> chests;
+
+	vector<Enemy> enemies;
+	InitEnemies(enemies, mySprites);
+
+	//create player
+	Player player(mySprites.heroTexture, PLAYER_POSITION_X, PLAYER_POSITION_Y, PLAYER_WIDTH, PLAYER_HEIGHT, "Hero", 6);
 
 	RenderWindow window(VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), "Game");
 
@@ -339,7 +319,7 @@ int main()
 
 	while (window.isOpen())
 	{
-		level = InitializeLevel(p);
+		level = InitializeLevel(player);
 
 		//time
 		float time = clock.getElapsedTime().asMicroseconds();
@@ -347,51 +327,48 @@ int main()
 		time = time / 500;
 
 		//game time
-		if (p.health > 0)
+		if (player.health > 0)
 		{
 			gameTime = gameTimer.getElapsedTime().asSeconds();
 		}
 
 		//event
-		Event event;
-		while (window.pollEvent(event))
-		{
-			if (event.type == Event::Closed)
-				window.close();
-		}
-		
-		
-			//player update
-		p.Update(time, gameTime, lastShootPlayer, wallBackgroundSprite, view);
-		
+		ProcessEvents(window);
+
+		player.Update(time, gameTime, lastShootPlayer, mySprites.wallBackgroundSprite, view);
+
 		UpdateEnemies(enemies, time, gameTime, window, level);
 
 		AddChest(level, chests, enemies);
+		CheckEnemyCollidesPlayer(gameTime, hitTimer, player, enemies);
 
 		//view
 		window.setView(view);
 
 		/////////////////////////////
 		window.clear();
-		
-		CheckEnemyCollidesPlayer(gameTime, hitTimer, p, enemies);
 
-		DrawBackground(window, wallBackgroundSprite, floorBackgroundSprite);
+		DrawBackground(window, mySprites.wallBackgroundSprite, mySprites.floorBackgroundSprite);
 
-		DrawPlayersHealth(p.health, window, view);
-		
+		DrawPlayersHealth(player.health, window, view);
+
 		DrawEnemies(window, level, enemies);
-		
-		myMap.drawMap(window);
 
-		UpdateChests(chests, window, p);
+		myMap.drawMap(window, IsLevelCleared(level, enemies));
 
-		CheckBulletsCollisionWithEntities(p, enemies, gameTime, bullets, time, window, bulletTexture);
+		UpdateChests(chests, window, player);
 
-		DrawPlayer(p, window);
+		UpdateBullets(player, enemies, gameTime, bullets, time, window, mySprites);
+
+		DrawPlayer(player, window);
 
 		window.display();
 		/////////////////////////////
 	}
+}
+
+int main()
+{
+	StartGame();
 	return 0;
 }

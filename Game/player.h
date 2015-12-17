@@ -15,15 +15,16 @@ struct Player:
 private:
 	float CurrentFrame = 0;
 	Vector2f playerOldPosition = {x, y};
-	float speed = 0.1;
 public:
 	enum
 	{
 		leftUp, leftDown, rightUp, rightDown, left, up, down, right, stay
 	} dir;
 	float damage = 1;
+	float speed = 0.1;
+	int bombCount = 1;
 
-	Player(Image & image, float X, float Y, int W, int H, String Name, float Health) :Character(image, X, Y, w, h, Name, health)
+	Player(Texture & image, float X, float Y, int W, int H, String Name, float Health) :Character(image, X, Y, w, h, Name, health)
 	{
 		dir = stay;
 		w = W;
@@ -123,21 +124,19 @@ public:
 	//player shoots
 	void Shoot(float gameTime, float &lastShootPlayer, int dir)
 	{
-		for (int i = 0; i <= SIZE_BULLETS; i++)
+		if (gameTime > (lastShootPlayer + 0.5))
 		{
-			if (bullets[i].life == false && (gameTime > (lastShootPlayer + 0.5)))
-			{
-				bullets[i].isPlayers = true;
-				bullets[i].life = true;
-				bullets[i].x = x + w/2 - 16;
-				bullets[i].y = y + 16;
-				bullets[i].timeShot = gameTime;
-				bullets[i].direction = dir;
-				bullets[i].speed = 0.3;
-				bullets[i].damage = damage;
-				lastShootPlayer = bullets[i].timeShot;
-				break;
-			}
+			Bullet bullet;
+			bullet.isPlayers = true;
+			bullet.life = true;
+			bullet.x = x + w / 2 - 16;
+			bullet.y = y + 16;
+			bullet.timeShot = gameTime;
+			bullet.direction = dir;
+			bullet.speed = 0.3;
+			bullet.damage = damage;
+			lastShootPlayer = bullet.timeShot;
+			bullets.push_back(bullet);
 		}
 	}
 	
@@ -163,12 +162,12 @@ public:
 
 	void CheckCollision(bool &canMove, Sprite& wallSprite, View& view)
 	{
-		for (int i = 0; i < SIZE_MAP_STRUCT; i++)
+		for (vector<Map>::iterator it = myMap.begin(); it != myMap.end(); ++it)
 		{
-			if (Collision::PixelPerfectTest(sprite, mapStruct[i].sprite))
+			if (Collision::PixelPerfectTest(sprite, it->sprite))
 				{
 					//if collides with rock
-					if (mapStruct[i].pos == NOTDOOR)
+					if (it->pos == NOTDOOR)
 					{
 						canMove = false;
 						SetLastNotCollidedPosition();
@@ -176,25 +175,25 @@ public:
 					}
 
 					//if collides with door
-					else if (mapStruct[i].pos == RIGHT)
+					else if (it->pos == RIGHT)
 					{
 						view.setCenter(view.getCenter().x + WINDOW_WIDTH, view.getCenter().y);
 						x += TILE_SIDE * 4 + w;
 						break;
 					}
-					else if (mapStruct[i].pos == LEFT)
+					else if (it->pos == LEFT)
 					{
 						view.setCenter(view.getCenter().x - WINDOW_WIDTH, view.getCenter().y);
 						x -= TILE_SIDE * 4 + w;
 						break;
 					}
-					else if (mapStruct[i].pos == UP)
+					else if (it->pos == UP)
 					{
 						view.setCenter(view.getCenter().x, view.getCenter().y - WINDOW_HEIGHT);
 						y -= TILE_SIDE * 4 + h ;
 						break;
 					}
-					else if (mapStruct[i].pos == DOWN)
+					else if (it->pos == DOWN)
 					{
 						view.setCenter(view.getCenter().x, view.getCenter().y + WINDOW_HEIGHT);
 						y += TILE_SIDE * 4 + h;
@@ -239,13 +238,6 @@ public:
 		Control(time, gameTime, lastShootPlayer);
 		CheckCollision(canMove, wallSprite, view);
 
-		if (Mouse::isButtonPressed(Mouse::Left))
-		{
-			canMove = true;
-		}
-
-
-
 		if (canMove == true)
 		{
 			setSpeed();
@@ -253,16 +245,6 @@ public:
 			y += dy * time;
 		}
 
-
 		sprite.setPosition(x, y);
-	}
-
-	float getPlayerCoordinateX()
-	{
-		return x;
-	}
-	float getPlayerCoordinateY()
-	{
-		return y;
 	}
 };
